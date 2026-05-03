@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f0c1a">
+  <title>ഇംപോസ്റ്റർ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0c1a;
+      --surface: #1e1a2e;
+      --surface2: #2a2545;
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --text: #f5f3ff;
+      --text-muted: #8b7bb3;
+      --radius: 16px;
+      --civilian-bg: #064e3b;
+      --civilian-color: #34d399;
+      --imposter-bg: #7f1d1d;
+      --imposter-color: #f87171;
+      --mrwhite-bg: #78350f;
+      --mrwhite-color: #fbbf24;
+    }
+
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    body {
+      font-family: 'Noto Sans Malayalam', sans-serif;
+      color: var(--text);
+    }
+
+    /* ── SCREEN SYSTEM ── */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 24px 20px max(24px, env(safe-area-inset-bottom));
+      padding-top: max(24px, env(safe-area-inset-top));
+      opacity: 1;
+      transform: translateX(0);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(16px);
+    }
+
+    .w-full { width: 100%; max-width: 400px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      width: 100%;
+      padding: 17px 24px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.1s;
+      line-height: 1;
+    }
+    .btn:active { transform: scale(0.97); opacity: 0.88; }
+    .btn-primary { background: linear-gradient(135deg, #6d28d9, #9333ea); color: white; }
+    .btn-secondary { background: var(--surface2); color: var(--accent-light); border: 1.5px solid var(--accent); }
+    .btn-danger { background: linear-gradient(135deg, #991b1b, #dc2626); color: white; }
+    .btn-success { background: linear-gradient(135deg, #065f46, #059669); color: white; }
+    .btn:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* ── SHARED ── */
+    .screen-header {
+      width: 100%; max-width: 400px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px; flex-shrink: 0;
+    }
+    .back-btn {
+      background: var(--surface2); border: none; color: var(--text);
+      width: 42px; height: 42px; border-radius: 11px;
+      font-size: 20px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .screen-title { font-size: 22px; font-weight: 800; }
+    .section-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 20px; width: 100%; max-width: 400px; flex-shrink: 0;
+    }
+    .section-label {
+      font-size: 12px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px;
+    }
+    .spacer { flex: 1; min-height: 16px; }
+
+    /* ── WELCOME ── */
+    #s-welcome {
+      justify-content: center; gap: 12px; text-align: center;
+      background: radial-gradient(ellipse at 50% 25%, #2d1b69 0%, #0f0c1a 65%);
+    }
+    .logo-wrap {
+      font-size: 82px; line-height: 1; margin-bottom: 4px;
+      animation: float 3.5s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+    #s-welcome h1 {
+      font-size: 44px; font-weight: 900;
+      background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 2px;
+    }
+    .tagline { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; }
+    .how-to-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 18px 20px; text-align: left;
+      width: 100%; max-width: 400px; margin-bottom: 16px;
+    }
+    .how-to-card h3 {
+      color: var(--accent-light); margin-bottom: 10px;
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .how-to-card ol { padding-left: 20px; color: var(--text-muted); font-size: 14px; line-height: 1.9; }
+
+    /* ── SETUP ── */
+    #s-setup { gap: 14px; }
+    .count-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+    }
+    .count-btn {
+      background: var(--surface2); border: 1.5px solid var(--accent);
+      color: var(--accent-light); width: 50px; height: 50px;
+      border-radius: 12px; font-size: 26px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s;
+    }
+    .count-btn:active { background: var(--accent); color: white; }
+    .count-display { font-size: 50px; font-weight: 900; color: var(--accent-light); text-align: center; flex: 1; }
+    .count-sublabel { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 2px; }
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 8px 0;
+    }
+    .toggle-row + .toggle-row {
+      border-top: 1px solid var(--surface2); margin-top: 6px; padding-top: 14px;
+    }
+    .toggle-info h4 { font-size: 15px; margin-bottom: 3px; }
+    .toggle-info p { font-size: 12px; color: var(--text-muted); }
+    .toggle { position: relative; width: 52px; height: 30px; flex-shrink: 0; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--surface2);
+      border-radius: 30px; transition: background 0.2s;
+    }
+    .toggle-slider:before {
+      content: ''; position: absolute;
+      width: 24px; height: 24px; left: 3px; top: 3px;
+      background: white; border-radius: 50%; transition: transform 0.2s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+    /* ── NAMES ── */
+    #s-names { gap: 10px; }
+    .name-row {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; max-width: 400px; flex-shrink: 0;
+    }
+    .player-emoji {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--surface2); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .name-input {
+      flex: 1; background: var(--surface); border: 1.5px solid var(--surface2);
+      border-radius: 12px; padding: 13px 15px; color: var(--text);
+      font-family: inherit; font-size: 15px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .name-input:focus { border-color: var(--accent); }
+    .name-input::placeholder { color: var(--text-muted); }
+
+    /* ── PASS ── */
+    #s-pass {
+      justify-content: center; text-align: center; gap: 24px;
+    }
+    .pass-dots { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; }
+    .pass-dot {
+      width: 9px; height: 9px; border-radius: 50%; background: var(--surface2);
+      transition: all 0.2s;
+    }
+    .pass-dot.done { background: var(--accent); }
+    .pass-dot.active { background: var(--accent-light); width: 26px; border-radius: 5px; }
+    .pass-phone-icon { font-size: 68px; }
+    .pass-label { font-size: 16px; color: var(--text-muted); margin-bottom: 6px; }
+    .pass-name { font-size: 38px; font-weight: 900; }
+    .pass-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 280px; }
+
+    /* ── REVEAL ── */
+    #s-reveal { justify-content: center; align-items: center; gap: 20px; padding: 20px; }
+    .card-wrap { perspective: 1000px; width: 100%; max-width: 340px; height: 410px; }
+    .card {
+      width: 100%; height: 100%;
+      position: relative; transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; inset: 0; border-radius: 22px;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 28px 22px;
+    }
+    .card-front {
+      background: var(--surface); border: 2px dashed var(--surface2);
+    }
+    .card-front-icon { font-size: 60px; margin-bottom: 14px; }
+    .card-front-text { font-size: 17px; color: var(--text-muted); text-align: center; line-height: 1.5; }
+    .card-back { transform: rotateY(180deg); }
+    .card-back.civilian {
+      background: linear-gradient(160deg, #064e3b 0%, #065f46 100%);
+      border: 2px solid #34d399;
+    }
+    .card-back.imposter {
+      background: linear-gradient(160deg, #7f1d1d 0%, #991b1b 100%);
+      border: 2px solid #f87171;
+    }
+    .card-back.mrwhite {
+      background: linear-gradient(160deg, #78350f 0%, #92400e 100%);
+      border: 2px solid #fbbf24;
+    }
+    .role-badge {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 6px 16px;
+      border-radius: 20px; margin-bottom: 20px;
+    }
+    .civilian .role-badge { background: rgba(52,211,153,.18); color: #34d399; }
+    .imposter .role-badge { background: rgba(248,113,113,.18); color: #f87171; }
+    .mrwhite .role-badge { background: rgba(251,191,36,.18); color: #fbbf24; }
+    .role-icon { font-size: 52px; margin-bottom: 12px; }
+    .role-word {
+      font-size: 46px; font-weight: 900; text-align: center;
+      line-height: 1.2; margin-bottom: 14px;
+    }
+    .civilian .role-word { color: #6ee7b7; }
+    .imposter .role-word { color: #fca5a5; }
+    .mrwhite .role-word { color: #fde68a; }
+    .role-hint { font-size: 13px; text-align: center; opacity: 0.7; line-height: 1.6; }
+    .tap-hint { font-size: 14px; color: var(--text-muted); }
+
+    /* ── PLAY ── */
+    #s-play { gap: 18px; align-items: center; }
+    .timer-wrap { position: relative; width: 190px; height: 190px; flex-shrink: 0; }
+    .timer-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .timer-bg { fill: none; stroke: var(--surface2); stroke-width: 9; }
+    .timer-progress {
+      fill: none; stroke: url(#tGrad); stroke-width: 9;
+      stroke-linecap: round; stroke-dasharray: 534; stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear, stroke 0.5s;
+    }
+    .timer-text {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 46px; font-weight: 900; color: var(--accent-light);
+      transition: color 0.3s;
+    }
+    .timer-text.urgent { color: #f87171; }
+    .rules-card { background: var(--surface); border-radius: var(--radius); padding: 18px 20px; width: 100%; max-width: 400px; }
+    .rules-card h3 { color: var(--accent-light); margin-bottom: 10px; font-size: 15px; }
+    .rules-card ul { padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 2; }
+
+    /* ── VOTE ── */
+    #s-vote { gap: 12px; }
+    .vote-who {
+      width: 100%; max-width: 400px; text-align: center;
+      background: var(--surface); border-radius: var(--radius);
+      padding: 14px 18px; flex-shrink: 0;
+    }
+    .vote-who-name { font-size: 22px; font-weight: 800; }
+    .vote-who-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+    .vote-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 16px 18px; width: 100%; max-width: 400px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+    .vote-card.selected { border-color: var(--accent); background: var(--surface2); }
+    .vote-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--surface2); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .vote-name { font-size: 17px; font-weight: 600; flex: 1; }
+    .vote-check {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; transition: background 0.15s, border-color 0.15s;
+    }
+    .vote-card.selected .vote-check { background: var(--accent); border-color: var(--accent); }
+
+    /* ── IMPOSTER GUESS ── */
+    #s-guess {
+      justify-content: center; align-items: center;
+      text-align: center; gap: 20px; padding: 32px 24px;
+    }
+    .guess-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; width: 100%; max-width: 400px;
+    }
+    .guess-btn {
+      background: var(--surface); border: 2px solid var(--surface2);
+      border-radius: 14px; padding: 20px 12px;
+      color: var(--text); font-family: inherit;
+      font-size: 20px; font-weight: 800;
+      cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.1s;
+    }
+    .guess-btn:active { transform: scale(0.96); }
+    .guess-btn.selected { border-color: #f87171; background: rgba(248,113,113,.1); }
+
+    /* ── RESULT ── */
+    #s-result {
+      justify-content: flex-start; align-items: center;
+      text-align: center; gap: 16px;
+      background: radial-gradient(ellipse at 50% 20%, #1e1a2e 0%, #0f0c1a 70%);
+    }
+    .result-emoji {
+      font-size: 80px; margin-top: 16px;
+      animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes pop {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .result-title { font-size: 32px; font-weight: 900; }
+    .result-sub { font-size: 15px; color: var(--text-muted); }
+    .words-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 18px 20px; width: 100%; max-width: 400px; text-align: left;
+    }
+    .words-card h4 {
+      font-size: 11px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px;
+    }
+    .word-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0;
+    }
+    .word-row + .word-row { border-top: 1px solid var(--surface2); }
+    .word-label { font-size: 13px; color: var(--text-muted); }
+    .word-val { font-size: 24px; font-weight: 900; }
+    .civilian-word { color: #34d399; }
+    .imposter-word { color: #f87171; }
+    .players-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 16px 20px; width: 100%; max-width: 400px; text-align: left;
+    }
+    .players-card h4 {
+      font-size: 11px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px;
+    }
+    .p-result-row {
+      display: flex; align-items: center; gap: 10px; padding: 7px 0;
+    }
+    .p-result-row + .p-result-row { border-top: 1px solid var(--surface2); }
+    .p-result-name { flex: 1; font-size: 15px; }
+    .role-tag {
+      font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+    }
+    .tag-civilian { background: rgba(52,211,153,.15); color: #34d399; }
+    .tag-imposter { background: rgba(248,113,113,.15); color: #f87171; }
+    .tag-mrwhite { background: rgba(251,191,36,.15); color: #fbbf24; }
+    .result-actions { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── CONFETTI ── */
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<!-- ══════════════════════════════════════
+     WELCOME
+══════════════════════════════════════ -->
+<div id="s-welcome" class="screen">
+  <div class="logo-wrap">🎭</div>
+  <h1>ഇംപോസ്റ്റർ</h1>
+  <p class="tagline">ആരാണ് കൂട്ടത്തിലെ വ്യാജൻ?</p>
+
+  <div class="how-to-card">
+    <h3>എങ്ങനെ കളിക്കാം</h3>
+    <ol>
+      <li>ഓരോ കളിക്കാരനും ഒരു രഹസ്യ വാക്ക് ലഭിക്കും</li>
+      <li>ഒരാൾക്ക് (ഇംപോസ്റ്ററിന്) വ്യത്യസ്ത വാക്ക് കിട്ടും</li>
+      <li>ഓരോരുത്തരും വാക്ക് വെളിപ്പെടുത്താതെ ഒരു സൂചന നൽകൂ</li>
+      <li>ചർച്ചയ്ക്ക് ശേഷം വോട്ടിലൂടെ ഇംപോസ്റ്ററെ കണ്ടുപിടിക്കൂ!</li>
+    </ol>
+  </div>
+
+  <div class="w-full">
+    <button class="btn btn-primary" onclick="goTo('s-setup')">കളി തുടങ്ങൂ →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SETUP
+══════════════════════════════════════ -->
+<div id="s-setup" class="screen hidden">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goTo('s-welcome')">←</button>
+    <span class="screen-title">ഗെയിം സജ്ജീകരണം</span>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">കളിക്കാരുടെ എണ്ണം</div>
+    <div class="count-row">
+      <button class="count-btn" onclick="changeCount(-1)">−</button>
+      <div>
+        <div class="count-display" id="count-display">4</div>
+        <div class="count-sublabel">കളിക്കാർ</div>
+      </div>
+      <button class="count-btn" onclick="changeCount(1)">+</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">ടൈമർ</div>
+    <div class="count-row">
+      <button class="count-btn" onclick="changeTimer(-30)">−</button>
+      <div>
+        <div class="count-display" id="timer-setup" style="font-size:38px; line-height:1.1">3:00</div>
+        <div class="count-sublabel">ചർച്ചാ സമയം</div>
+      </div>
+      <button class="count-btn" onclick="changeTimer(30)">+</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">ഗെയിം ഓപ്ഷനുകൾ</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>Mr. White</h4>
+        <p>ഒരാൾക്ക് വാക്ക് ഇല്ലാതിരിക്കും, ഊഹിക്കണം</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="tog-white">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>രണ്ട് ഇംപോസ്റ്ററുകൾ</h4>
+        <p>5+ കളിക്കാർക്ക് ശുപാർശ</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="tog-two">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="w-full">
+    <button class="btn btn-primary" onclick="goToNames()">തുടർന്ന് →</button>
+  </div>
+  <div style="height:24px; flex-shrink:0"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PLAYER NAMES
+══════════════════════════════════════ -->
+<div id="s-names" class="screen hidden">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goTo('s-setup')">←</button>
+    <span class="screen-title">കളിക്കാരുടെ പേര്</span>
+  </div>
+  <div id="names-list" style="width:100%; display:flex; flex-direction:column; gap:10px; flex-shrink:0"></div>
+  <div class="spacer"></div>
+  <div class="w-full" style="flex-shrink:0; padding-bottom:8px">
+    <button class="btn btn-primary" onclick="startGame()">ഗെയിം ആരംഭിക്കൂ →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PASS PHONE
+══════════════════════════════════════ -->
+<div id="s-pass" class="screen hidden">
+  <div class="pass-dots" id="pass-dots"></div>
+  <div class="pass-phone-icon">📱</div>
+  <div>
+    <div class="pass-label">ഫോൺ കൊടുക്കൂ</div>
+    <div class="pass-name" id="pass-name">—</div>
+  </div>
+  <div class="pass-sub">ഈ വ്യക്തി മാത്രം ഫോൺ നോക്കണം.<br>മറ്റുള്ളവർ തിരിഞ്ഞ് നോക്കരുത്!</div>
+  <div class="w-full">
+    <button class="btn btn-primary" onclick="showReveal()">ഞാൻ തയ്യാറാണ് →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ROLE REVEAL
+══════════════════════════════════════ -->
+<div id="s-reveal" class="screen hidden">
+  <div class="card-wrap">
+    <div class="card" id="role-card" onclick="flipCard()">
+      <div class="card-face card-front">
+        <div class="card-front-icon">🔒</div>
+        <div class="card-front-text">ടാപ്പ് ചെയ്ത്<br>നിങ്ങളുടെ റോൾ കാണൂ</div>
+      </div>
+      <div class="card-face card-back" id="card-back"></div>
+    </div>
+  </div>
+  <div class="tap-hint" id="tap-hint">കാർഡ് ടാപ്പ് ചെയ്യൂ 👆</div>
+  <div class="w-full" style="flex-shrink:0">
+    <button class="btn btn-secondary" id="done-btn" style="display:none" onclick="revealDone()">
+      മനസ്സിലായി, ഫോൺ മൂടൂ ✓
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PLAY / DISCUSSION
+══════════════════════════════════════ -->
+<div id="s-play" class="screen hidden">
+  <div class="screen-header" style="justify-content:center; margin-bottom:10px">
+    <span class="screen-title">ചർച്ചാ സമയം 💬</span>
+  </div>
+
+  <div class="timer-wrap">
+    <svg class="timer-svg" viewBox="0 0 190 190">
+      <defs>
+        <linearGradient id="tGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient>
+      </defs>
+      <circle class="timer-bg" cx="95" cy="95" r="85"/>
+      <circle class="timer-progress" id="t-circle" cx="95" cy="95" r="85"/>
+    </svg>
+    <div class="timer-text" id="t-text">3:00</div>
+  </div>
+
+  <div class="rules-card">
+    <h3>📋 ഓർക്കുക</h3>
+    <ul>
+      <li>ഓരോരുത്തരും ഒരു സൂചന (ഒരു വാക്ക്/ഒരു വാചകം) നൽകൂ</li>
+      <li>നേരിട്ട് വാക്ക് പറയരുത്</li>
+      <li>ഇംപോസ്റ്ററെ ശ്രദ്ധിക്കൂ – അവർ ഊഹിക്കുകയാണ്</li>
+      <li>ടൈം കഴിഞ്ഞ് വോട്ട് ചെയ്ത് ഇംപോസ്റ്ററെ കണ്ടുപിടിക്കൂ</li>
+    </ul>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="w-full" style="flex-shrink:0; padding-bottom:8px">
+    <button class="btn btn-danger" onclick="goToVote()">വോട്ടിന് പോകൂ 🗳️</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     VOTE
+══════════════════════════════════════ -->
+<div id="s-vote" class="screen hidden">
+  <div class="vote-who">
+    <div class="vote-who-name" id="vote-whose-turn">—</div>
+    <div class="vote-who-sub">ആരാണ് ഇംപോസ്റ്റർ? ഒരാളെ തിരഞ്ഞെടുക്കൂ</div>
+  </div>
+  <div id="vote-list" style="width:100%; display:flex; flex-direction:column; gap:10px; flex-shrink:0"></div>
+  <div class="spacer"></div>
+  <div class="w-full" style="flex-shrink:0; padding-bottom:8px">
+    <button class="btn btn-danger" id="vote-btn" disabled onclick="confirmVote()">
+      വോട്ട് ഉറപ്പിക്കൂ →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     IMPOSTER GUESS
+══════════════════════════════════════ -->
+<div id="s-guess" class="screen hidden">
+  <div style="font-size:60px; margin-top:16px">🎯</div>
+  <div class="screen-title" style="font-size:24px; text-align:center">ഇംപോസ്റ്ററെ കണ്ടുപിടിച്ചു!</div>
+  <div style="color:var(--text-muted); font-size:14px; max-width:300px; line-height:1.7; text-align:center">
+    <strong id="guess-name" style="color:var(--text)">—</strong>, സിവിലിയൻ വാക്ക് ഊഹിക്കൂ!<br>
+    ശരിയാണെങ്കിൽ ഇംപോസ്റ്റർ ജയിക്കും.
+  </div>
+  <div class="guess-grid" id="guess-grid"></div>
+  <div class="w-full" style="flex-shrink:0">
+    <button class="btn btn-danger" id="guess-btn" disabled onclick="confirmGuess()">
+      ഊഹം ഉറപ്പിക്കൂ →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     RESULT
+══════════════════════════════════════ -->
+<div id="s-result" class="screen hidden">
+  <div class="result-emoji" id="r-emoji">🎉</div>
+  <div class="result-title" id="r-title">—</div>
+  <div class="result-sub" id="r-sub">—</div>
+
+  <div class="words-card">
+    <h4>വാക്കുകൾ</h4>
+    <div class="word-row">
+      <span class="word-label">🟢 സിവിലിയൻ വാക്ക്</span>
+      <span class="word-val civilian-word" id="r-civ-word">—</span>
+    </div>
+    <div class="word-row">
+      <span class="word-label">🔴 ഇംപോസ്റ്റർ വാക്ക്</span>
+      <span class="word-val imposter-word" id="r-imp-word">—</span>
+    </div>
+  </div>
+
+  <div class="players-card">
+    <h4>കളിക്കാർ</h4>
+    <div id="r-players"></div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn btn-primary" onclick="playAgain()">വീണ്ടും കളിക്കൂ 🔄</button>
+    <button class="btn btn-secondary" onclick="goTo('s-welcome')">ഹോം</button>
+  </div>
+  <div style="height:24px; flex-shrink:0"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+// ── WORD PAIRS (all Malayalam) ──
+const PAIRS = [
+  ['ചായ', 'കാപ്പി'],
+  ['ആന', 'കുതിര'],
+  ['ചന്ദ്രൻ', 'സൂര്യൻ'],
+  ['മഴ', 'മഞ്ഞ്'],
+  ['പൂച്ച', 'നായ'],
+  ['ആപ്പിൾ', 'ഓറഞ്ച്'],
+  ['ട്രെയിൻ', 'ബസ്'],
+  ['സ്കൂൾ', 'കോളേജ്'],
+  ['കടൽ', 'നദി'],
+  ['ഡോക്ടർ', 'നഴ്സ്'],
+  ['താമര', 'റോസ്'],
+  ['ചോറ്', 'ദോശ'],
+  ['ടെലിവിഷൻ', 'മൊബൈൽ'],
+  ['സ്വർണ്ണം', 'വെള്ളി'],
+  ['ക്രിക്കറ്റ്', 'ഫുട്ബോൾ'],
+  ['ഓണം', 'വിഷു'],
+  ['പുസ്തകം', 'മാഗസിൻ'],
+  ['ചിക്കൻ', 'മീൻ'],
+  ['ഫോൺ', 'ടാബ്ലറ്റ്'],
+  ['ക്ഷേത്രം', 'പള്ളി'],
+  ['ബോട്ട്', 'കപ്പൽ'],
+  ['ഗ്രാമം', 'നഗരം'],
+  ['മാങ്ങ', 'തണ്ണിമത്തൻ'],
+  ['ഗിറ്റാർ', 'വീണ'],
+  ['സിനിമ', 'നാടകം'],
+  ['ബ്രഡ്', 'ചപ്പാത്തി'],
+  ['അമ്മ', 'ചേച്ചി'],
+  ['വീട്', 'ഫ്ലാറ്റ്'],
+  ['കോഴി', 'താറാവ്'],
+  ['പുഴ', 'കുളം'],
+  ['ആകാശം', 'കടൽ'],
+  ['ലാപ്ടോപ്', 'കമ്പ്യൂട്ടർ'],
+  ['കേരളം', 'തമിഴ്നാട്'],
+  ['ഇഡ്ഡലി', 'ഉപ്പുമാവ്'],
+  ['കവിത', 'കഥ'],
+  ['ഷർട്ട്', 'കുർത്ത'],
+  ['കണ്ണട', 'ലെൻസ്'],
+  ['ഗോതമ്പ്', 'അരി'],
+  ['തലയണ', 'കമ്പളം'],
+  ['പൂന്തോട്ടം', 'കാട്'],
+  ['ബസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
+  ['ആലപ്പുഴ', 'കോഴിക്കോട്'],
+  ['ഇലക്ട്രിക്', 'സോളാർ'],
+  ['ബേക്കറി', 'ഹോട്ടൽ'],
+  ['ബൈക്ക്', 'സ്കൂട്ടർ'],
+];
+
+const EMOJIS = ['😀','😎','🥳','🤩','😍','🦸','🧙','🎭','👻','🤖'];
+
+// ── STATE ──
+const G = {
+  count: 4,
+  timer: 180,
+  useMrWhite: false,
+  useTwoImposters: false,
+  names: [],
+  players: [],        // [{name, role, word}]
+  civWord: '',
+  impWord: '',
+  revealIdx: 0,
+  cardFlipped: false,
+  timerInterval: null,
+  timerLeft: 0,
+  voteRound: 0,
+  currentVote: -1,
+  votes: [],          // one per player
+  guessWord: null,
+  eliminatedIdx: -1,
+};
+
+// ── NAVIGATION ──
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.toggle('hidden', s.id !== id);
+  });
+}
+
+// ── SETUP ──
+function changeCount(d) {
+  G.count = Math.max(3, Math.min(10, G.count + d));
+  document.getElementById('count-display').textContent = G.count;
+}
+
+function changeTimer(d) {
+  G.timer = Math.max(60, Math.min(600, G.timer + d));
+  const m = Math.floor(G.timer / 60), s = G.timer % 60;
+  document.getElementById('timer-setup').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function goToNames() {
+  G.useMrWhite = document.getElementById('tog-white').checked;
+  G.useTwoImposters = document.getElementById('tog-two').checked;
+
+  const list = document.getElementById('names-list');
+  list.innerHTML = '';
+  for (let i = 0; i < G.count; i++) {
+    const row = document.createElement('div');
+    row.className = 'name-row w-full';
+    row.innerHTML = `
+      <div class="player-emoji">${EMOJIS[i % EMOJIS.length]}</div>
+      <input class="name-input" id="n${i}" type="text"
+        placeholder="കളിക്കാർ ${i+1}"
+        value="${G.names[i] || ''}" maxlength="18">
+    `;
+    list.appendChild(row);
+  }
+  goTo('s-names');
+}
+
+// ── GAME START ──
+function startGame() {
+  G.names = [];
+  for (let i = 0; i < G.count; i++) {
+    const v = document.getElementById(`n${i}`).value.trim();
+    G.names.push(v || `P${i+1}`);
+  }
+  assignRoles();
+  G.revealIdx = 0;
+  G.votes = [];
+  G.voteRound = 0;
+  showPass();
+}
+
+function assignRoles() {
+  const pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+  G.civWord = pair[0];
+  G.impWord = pair[1];
+
+  G.players = G.names.map(name => ({ name, role: 'civilian', word: G.civWord }));
+
+  const idxs = shuffle([...Array(G.count).keys()]);
+  const nImp = (G.useTwoImposters && G.count >= 5) ? 2 : 1;
+  const nMrW = G.useMrWhite ? 1 : 0;
+
+  for (let i = 0; i < nImp; i++) {
+    G.players[idxs[i]].role = 'imposter';
+    G.players[idxs[i]].word = G.impWord;
+  }
+  if (nMrW) {
+    G.players[idxs[nImp]].role = 'mrwhite';
+    G.players[idxs[nImp]].word = '';
+  }
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── PASS SCREEN ──
+function showPass() {
+  if (G.revealIdx >= G.count) { startPlay(); return; }
+
+  document.getElementById('pass-name').textContent = G.players[G.revealIdx].name;
+
+  const dots = document.getElementById('pass-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < G.count; i++) {
+    const d = document.createElement('div');
+    d.className = 'pass-dot' + (i < G.revealIdx ? ' done' : i === G.revealIdx ? ' active' : '');
+    dots.appendChild(d);
+  }
+  goTo('s-pass');
+}
+
+// ── REVEAL SCREEN ──
+function showReveal() {
+  const p = G.players[G.revealIdx];
+  G.cardFlipped = false;
+
+  const card = document.getElementById('role-card');
+  card.classList.remove('flipped');
+
+  document.getElementById('done-btn').style.display = 'none';
+  document.getElementById('tap-hint').style.display = 'block';
+
+  const back = document.getElementById('card-back');
+  if (p.role === 'civilian') {
+    back.className = 'card-face card-back civilian';
+    back.innerHTML = `
+      <div class="role-badge">✅ സിവിലിയൻ</div>
+      <div class="role-icon">🙂</div>
+      <div class="role-word">${p.word}</div>
+      <div class="role-hint">ഇത് നിങ്ങളുടെ രഹസ്യ വാക്ക്.<br>ഒരു സൂചന നൽകൂ, ഇംപോസ്റ്ററെ കണ്ടുപിടിക്കൂ!</div>
+    `;
+  } else if (p.role === 'imposter') {
+    back.className = 'card-face card-back imposter';
+    back.innerHTML = `
+      <div class="role-badge">🔴 ഇംപോസ്റ്റർ</div>
+      <div class="role-icon">😈</div>
+      <div class="role-word">${p.word}</div>
+      <div class="role-hint">നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>ചർച്ചകൾ ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.</div>
+    `;
+  } else {
+    back.className = 'card-face card-back mrwhite';
+    back.innerHTML = `
+      <div class="role-badge">⚪ Mr. White</div>
+      <div class="role-icon">🤫</div>
+      <div class="role-word">???</div>
+      <div class="role-hint">നിങ്ങൾക്ക് വാക്ക് ഇല്ല!<br>ചർച്ചകൾ ശ്രദ്ധിച്ച് ഊഹിക്കൂ.<br>ശ്രദ്ധയോടെ ഒളിഞ്ഞിരിക്കൂ.</div>
+    `;
+  }
+
+  goTo('s-reveal');
+}
+
+function flipCard() {
+  if (G.cardFlipped) return;
+  G.cardFlipped = true;
+  document.getElementById('role-card').classList.add('flipped');
+  document.getElementById('tap-hint').style.display = 'none';
+  if (navigator.vibrate) navigator.vibrate(60);
+  setTimeout(() => {
+    document.getElementById('done-btn').style.display = 'block';
+  }, 560);
+}
+
+function revealDone() {
+  G.revealIdx++;
+  showPass();
+}
+
+// ── PLAY PHASE ──
+function startPlay() {
+  G.timerLeft = G.timer;
+  updateTimer();
+
+  if (G.timerInterval) clearInterval(G.timerInterval);
+  G.timerInterval = setInterval(() => {
+    G.timerLeft--;
+    updateTimer();
+    if (G.timerLeft <= 0) clearInterval(G.timerInterval);
+  }, 1000);
+
+  goTo('s-play');
+}
+
+function updateTimer() {
+  const m = Math.floor(G.timerLeft / 60);
+  const s = G.timerLeft % 60;
+  const el = document.getElementById('t-text');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.className = 'timer-text' + (G.timerLeft <= 30 ? ' urgent' : '');
+
+  const circ = document.getElementById('t-circle');
+  const r = 85, C = 2 * Math.PI * r;
+  circ.style.strokeDasharray = C;
+  circ.style.strokeDashoffset = C * (1 - G.timerLeft / G.timer);
+}
+
+function goToVote() {
+  if (G.timerInterval) clearInterval(G.timerInterval);
+  G.voteRound = 0;
+  G.votes = [];
+  renderVote();
+  goTo('s-vote');
+}
+
+// ── VOTING ──
+function renderVote() {
+  const p = G.players[G.voteRound];
+  document.getElementById('vote-whose-turn').textContent = p.name;
+  G.currentVote = -1;
+  document.getElementById('vote-btn').disabled = true;
+
+  const list = document.getElementById('vote-list');
+  list.innerHTML = '';
+  G.players.forEach((pl, i) => {
+    if (i === G.voteRound) return;
+    const card = document.createElement('div');
+    card.className = 'vote-card w-full';
+    card.id = `vc-${i}`;
+    card.onclick = () => pickVote(i);
+    card.innerHTML = `
+      <div class="vote-avatar">${EMOJIS[i % EMOJIS.length]}</div>
+      <div class="vote-name">${pl.name}</div>
+      <div class="vote-check" id="vck-${i}"></div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function pickVote(i) {
+  document.querySelectorAll('.vote-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.vote-check').forEach(c => c.textContent = '');
+  document.getElementById(`vc-${i}`).classList.add('selected');
+  document.getElementById(`vck-${i}`).textContent = '✓';
+  G.currentVote = i;
+  document.getElementById('vote-btn').disabled = false;
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function confirmVote() {
+  G.votes.push(G.currentVote);
+  G.voteRound++;
+  if (G.voteRound >= G.count) {
+    tallyVotes();
+  } else {
+    renderVote();
+  }
+}
+
+function tallyVotes() {
+  const tally = {};
+  G.votes.forEach(v => tally[v] = (tally[v] || 0) + 1);
+
+  let maxV = 0, elim = -1;
+  Object.entries(tally).forEach(([idx, cnt]) => {
+    if (cnt > maxV) { maxV = cnt; elim = +idx; }
+  });
+
+  G.eliminatedIdx = elim;
+  const ep = G.players[elim];
+
+  if (ep.role === 'imposter' || ep.role === 'mrwhite') {
+    offerGuess(elim);
+  } else {
+    showResult('imp-wins');
+  }
+}
+
+// ── IMPOSTER GUESS ──
+function offerGuess(idx) {
+  const p = G.players[idx];
+  document.getElementById('guess-name').textContent = p.name;
+  G.guessWord = null;
+  document.getElementById('guess-btn').disabled = true;
+
+  const correct = G.civWord;
+  const pool = PAIRS.flat().filter(w => w !== correct && w !== G.impWord);
+  shuffle(pool);
+  const options = shuffle([correct, ...pool.slice(0, 3)]);
+
+  const grid = document.getElementById('guess-grid');
+  grid.innerHTML = '';
+  options.forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'guess-btn';
+    btn.textContent = word;
+    btn.onclick = () => {
+      document.querySelectorAll('.guess-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      G.guessWord = word;
+      document.getElementById('guess-btn').disabled = false;
+      if (navigator.vibrate) navigator.vibrate(30);
+    };
+    grid.appendChild(btn);
+  });
+
+  goTo('s-guess');
+}
+
+function confirmGuess() {
+  showResult(G.guessWord === G.civWord ? 'imp-wins-guess' : 'civ-wins');
+}
+
+// ── RESULTS ──
+function showResult(outcome) {
+  const rEmoji = document.getElementById('r-emoji');
+  const rTitle = document.getElementById('r-title');
+  const rSub   = document.getElementById('r-sub');
+
+  if (outcome === 'civ-wins') {
+    rEmoji.textContent = '🎉';
+    rTitle.textContent = 'സിവിലിയൻമാർ ജയിച്ചു!';
+    rTitle.style.color = '#34d399';
+    rSub.textContent = 'ഇംപോസ്റ്ററെ കണ്ടുപിടിച്ചു!';
+    spawnConfetti();
+  } else if (outcome === 'imp-wins') {
+    rEmoji.textContent = '😈';
+    rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
+    rTitle.style.color = '#f87171';
+    rSub.textContent = 'ഇംപോസ്റ്ററെ തിരിച്ചറിഞ്ഞില്ല!';
+  } else {
+    rEmoji.textContent = '🎯';
+    rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
+    rTitle.style.color = '#f87171';
+    rSub.textContent = 'ഊഹം ശരിയായിരുന്നു!';
+  }
+
+  document.getElementById('r-civ-word').textContent = G.civWord;
+  document.getElementById('r-imp-word').textContent = G.impWord;
+
+  const rows = document.getElementById('r-players');
+  rows.innerHTML = '';
+  G.players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'p-result-row';
+    const tagClass = p.role === 'civilian' ? 'tag-civilian' : p.role === 'imposter' ? 'tag-imposter' : 'tag-mrwhite';
+    const tagText  = p.role === 'civilian' ? '🟢 സിവിലിയൻ' : p.role === 'imposter' ? '🔴 ഇംപോസ്റ്റർ' : '⚪ Mr.White';
+    row.innerHTML = `
+      <span style="font-size:20px">${EMOJIS[i % EMOJIS.length]}</span>
+      <span class="p-result-name">${p.name}</span>
+      <span class="role-tag ${tagClass}">${tagText}</span>
+    `;
+    rows.appendChild(row);
+  });
+
+  goTo('s-result');
+}
+
+// ── PLAY AGAIN (same players, new word) ──
+function playAgain() {
+  assignRoles();
+  G.revealIdx = 0;
+  G.votes = [];
+  G.voteRound = 0;
+  showPass();
+}
+
+// ── CONFETTI ──
+function spawnConfetti() {
+  const cv = document.getElementById('confetti');
+  const ctx = cv.getContext('2d');
+  cv.width = window.innerWidth;
+  cv.height = window.innerHeight;
+
+  const pieces = Array.from({length: 90}, () => ({
+    x: Math.random() * cv.width,
+    y: -20,
+    w: Math.random() * 10 + 5,
+    h: Math.random() * 6 + 3,
+    color: ['#7c3aed','#a855f7','#34d399','#fbbf24','#f87171','#60a5fa','#f0abfc'][Math.floor(Math.random()*7)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: Math.random() * 3 + 2,
+    va: (Math.random() - 0.5) * 8,
+    angle: Math.random() * 360,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    let alive = false;
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.angle += p.va;
+      if (p.y < cv.height + 20) {
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+      }
+    });
+    if (alive) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, cv.width, cv.height);
+  }
+  draw();
+}
+
+// Init
+goTo('s-welcome');
+</script>
+</body>
+</html>
