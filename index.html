@@ -184,6 +184,42 @@
     .toggle input:checked + .toggle-slider { background: var(--accent); }
     .toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
 
+    /* ── CATEGORIES ── */
+    .cat-actions {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .cat-action-btn {
+      flex: 1; background: var(--surface2); border: none;
+      color: var(--accent-light); padding: 8px 10px;
+      border-radius: 10px; font-family: inherit;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background 0.12s;
+    }
+    .cat-action-btn:active { background: var(--accent); color: white; }
+    .cat-grid {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .cat-chip {
+      background: var(--surface2); border: 1.5px solid transparent;
+      border-radius: 12px; padding: 9px 13px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .cat-chip.selected {
+      background: rgba(124, 58, 237, 0.18);
+      border-color: var(--accent); color: var(--accent-light);
+    }
+    .cat-chip-count {
+      font-size: 11px; opacity: 0.65; font-weight: 500;
+    }
+    .cat-empty-warn {
+      color: #f87171; font-size: 12px; margin-top: 10px;
+      text-align: center; display: none;
+    }
+    .cat-empty-warn.show { display: block; }
+
     /* ── NAMES ── */
     #s-names { gap: 10px; }
     .name-row {
@@ -467,6 +503,16 @@
     <div class="section-label">ഗെയിം ഓപ്ഷനുകൾ</div>
     <div class="toggle-row">
       <div class="toggle-info">
+        <h4>ഇംപോസ്റ്ററിന് വാക്ക്</h4>
+        <p>ഇംപോസ്റ്ററിന് വ്യത്യസ്ത വാക്ക് നൽകുക</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="tog-imp-word" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
         <h4>Mr. White</h4>
         <p>ഒരാൾക്ക് വാക്ക് ഇല്ലാതിരിക്കും, ഊഹിക്കണം</p>
       </div>
@@ -485,6 +531,16 @@
         <span class="toggle-slider"></span>
       </label>
     </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">വാക്കുകളുടെ വിഭാഗം</div>
+    <div class="cat-actions">
+      <button class="cat-action-btn" onclick="selectAllCats()">എല്ലാം തിരഞ്ഞെടുക്കൂ</button>
+      <button class="cat-action-btn" onclick="clearAllCats()">ഒന്നുമില്ല</button>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+    <div class="cat-empty-warn" id="cat-warn">കുറഞ്ഞത് ഒരു വിഭാഗം തിരഞ്ഞെടുക്കണം</div>
   </div>
 
   <div class="w-full">
@@ -632,7 +688,7 @@
       <span class="word-label">🟢 സിവിലിയൻ വാക്ക്</span>
       <span class="word-val civilian-word" id="r-civ-word">—</span>
     </div>
-    <div class="word-row">
+    <div class="word-row" id="r-imp-row">
       <span class="word-label">🔴 ഇംപോസ്റ്റർ വാക്ക്</span>
       <span class="word-val imposter-word" id="r-imp-word">—</span>
     </div>
@@ -654,54 +710,101 @@
      JAVASCRIPT
 ══════════════════════════════════════ -->
 <script>
-// ── WORD PAIRS (all Malayalam) ──
-const PAIRS = [
-  ['ചായ', 'കാപ്പി'],
-  ['ആന', 'കുതിര'],
-  ['ചന്ദ്രൻ', 'സൂര്യൻ'],
-  ['മഴ', 'മഞ്ഞ്'],
-  ['പൂച്ച', 'നായ'],
-  ['ആപ്പിൾ', 'ഓറഞ്ച്'],
-  ['ട്രെയിൻ', 'ബസ്'],
-  ['സ്കൂൾ', 'കോളേജ്'],
-  ['കടൽ', 'നദി'],
-  ['ഡോക്ടർ', 'നഴ്സ്'],
-  ['താമര', 'റോസ്'],
-  ['ചോറ്', 'ദോശ'],
-  ['ടെലിവിഷൻ', 'മൊബൈൽ'],
-  ['സ്വർണ്ണം', 'വെള്ളി'],
-  ['ക്രിക്കറ്റ്', 'ഫുട്ബോൾ'],
-  ['ഓണം', 'വിഷു'],
-  ['പുസ്തകം', 'മാഗസിൻ'],
-  ['ചിക്കൻ', 'മീൻ'],
-  ['ഫോൺ', 'ടാബ്ലറ്റ്'],
-  ['ക്ഷേത്രം', 'പള്ളി'],
-  ['ബോട്ട്', 'കപ്പൽ'],
-  ['ഗ്രാമം', 'നഗരം'],
-  ['മാങ്ങ', 'തണ്ണിമത്തൻ'],
-  ['ഗിറ്റാർ', 'വീണ'],
-  ['സിനിമ', 'നാടകം'],
-  ['ബ്രഡ്', 'ചപ്പാത്തി'],
-  ['അമ്മ', 'ചേച്ചി'],
-  ['വീട്', 'ഫ്ലാറ്റ്'],
-  ['കോഴി', 'താറാവ്'],
-  ['പുഴ', 'കുളം'],
-  ['ആകാശം', 'കടൽ'],
-  ['ലാപ്ടോപ്', 'കമ്പ്യൂട്ടർ'],
-  ['കേരളം', 'തമിഴ്നാട്'],
-  ['ഇഡ്ഡലി', 'ഉപ്പുമാവ്'],
-  ['കവിത', 'കഥ'],
-  ['ഷർട്ട്', 'കുർത്ത'],
-  ['കണ്ണട', 'ലെൻസ്'],
-  ['ഗോതമ്പ്', 'അരി'],
-  ['തലയണ', 'കമ്പളം'],
-  ['പൂന്തോട്ടം', 'കാട്'],
-  ['ബസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
-  ['ആലപ്പുഴ', 'കോഴിക്കോട്'],
-  ['ഇലക്ട്രിക്', 'സോളാർ'],
-  ['ബേക്കറി', 'ഹോട്ടൽ'],
-  ['ബൈക്ക്', 'സ്കൂട്ടർ'],
-];
+// ── WORD PAIRS BY CATEGORY (all Malayalam) ──
+const CATEGORIES = {
+  food: {
+    name: 'ഭക്ഷണം', emoji: '🍽️',
+    pairs: [
+      ['ചായ', 'കാപ്പി'],
+      ['ആപ്പിൾ', 'ഓറഞ്ച്'],
+      ['ചോറ്', 'ദോശ'],
+      ['ചിക്കൻ', 'മീൻ'],
+      ['മാങ്ങ', 'തണ്ണിമത്തൻ'],
+      ['ബ്രഡ്', 'ചപ്പാത്തി'],
+      ['ഇഡ്ഡലി', 'ഉപ്പുമാവ്'],
+      ['ഗോതമ്പ്', 'അരി'],
+    ],
+  },
+  animals: {
+    name: 'മൃഗങ്ങൾ', emoji: '🐾',
+    pairs: [
+      ['ആന', 'കുതിര'],
+      ['പൂച്ച', 'നായ'],
+      ['കോഴി', 'താറാവ്'],
+    ],
+  },
+  nature: {
+    name: 'പ്രകൃതി', emoji: '🌿',
+    pairs: [
+      ['ചന്ദ്രൻ', 'സൂര്യൻ'],
+      ['മഴ', 'മഞ്ഞ്'],
+      ['കടൽ', 'നദി'],
+      ['പുഴ', 'കുളം'],
+      ['ആകാശം', 'കടൽ'],
+      ['താമര', 'റോസ്'],
+      ['പൂന്തോട്ടം', 'കാട്'],
+    ],
+  },
+  transport: {
+    name: 'വാഹനം', emoji: '🚗',
+    pairs: [
+      ['ട്രെയിൻ', 'ബസ്'],
+      ['ബോട്ട്', 'കപ്പൽ'],
+      ['ബൈക്ക്', 'സ്കൂട്ടർ'],
+    ],
+  },
+  places: {
+    name: 'സ്ഥലങ്ങൾ', emoji: '🏛️',
+    pairs: [
+      ['സ്കൂൾ', 'കോളേജ്'],
+      ['ഗ്രാമം', 'നഗരം'],
+      ['കേരളം', 'തമിഴ്നാട്'],
+      ['ആലപ്പുഴ', 'കോഴിക്കോട്'],
+      ['ക്ഷേത്രം', 'പള്ളി'],
+      ['ബേക്കറി', 'ഹോട്ടൽ'],
+      ['വീട്', 'ഫ്ലാറ്റ്'],
+    ],
+  },
+  sports: {
+    name: 'കായികം', emoji: '⚽',
+    pairs: [
+      ['ക്രിക്കറ്റ്', 'ഫുട്ബോൾ'],
+      ['ബസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
+    ],
+  },
+  tech: {
+    name: 'സാങ്കേതികം', emoji: '📱',
+    pairs: [
+      ['ടെലിവിഷൻ', 'മൊബൈൽ'],
+      ['ഫോൺ', 'ടാബ്ലറ്റ്'],
+      ['ലാപ്ടോപ്', 'കമ്പ്യൂട്ടർ'],
+      ['ഇലക്ട്രിക്', 'സോളാർ'],
+    ],
+  },
+  entertainment: {
+    name: 'വിനോദം', emoji: '🎭',
+    pairs: [
+      ['സിനിമ', 'നാടകം'],
+      ['പുസ്തകം', 'മാഗസിൻ'],
+      ['കവിത', 'കഥ'],
+      ['ഗിറ്റാർ', 'വീണ'],
+    ],
+  },
+  misc: {
+    name: 'മറ്റുള്ളവ', emoji: '✨',
+    pairs: [
+      ['ഡോക്ടർ', 'നഴ്സ്'],
+      ['അമ്മ', 'ചേച്ചി'],
+      ['സ്വർണ്ണം', 'വെള്ളി'],
+      ['ഓണം', 'വിഷു'],
+      ['ഷർട്ട്', 'കുർത്ത'],
+      ['കണ്ണട', 'ലെൻസ്'],
+      ['തലയണ', 'കമ്പളം'],
+    ],
+  },
+};
+
+const CAT_KEYS = Object.keys(CATEGORIES);
 
 const EMOJIS = ['😀','😎','🥳','🤩','😍','🦸','🧙','🎭','👻','🤖'];
 
@@ -711,6 +814,8 @@ const G = {
   timer: 180,
   useMrWhite: false,
   useTwoImposters: false,
+  imposterGetsWord: true,
+  selectedCats: new Set(CAT_KEYS),
   names: [],
   players: [],        // [{name, role, word}]
   civWord: '',
@@ -725,6 +830,53 @@ const G = {
   guessWord: null,
   eliminatedIdx: -1,
 };
+
+// ── CATEGORY HELPERS ──
+function getActivePairs() {
+  const pairs = [];
+  G.selectedCats.forEach(k => {
+    if (CATEGORIES[k]) pairs.push(...CATEGORIES[k].pairs);
+  });
+  return pairs;
+}
+
+function renderCatGrid() {
+  const grid = document.getElementById('cat-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CAT_KEYS.forEach(k => {
+    const cat = CATEGORIES[k];
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'cat-chip' + (G.selectedCats.has(k) ? ' selected' : '');
+    chip.innerHTML = `${cat.emoji} ${cat.name} <span class="cat-chip-count">(${cat.pairs.length})</span>`;
+    chip.onclick = () => toggleCat(k);
+    grid.appendChild(chip);
+  });
+  updateCatWarn();
+}
+
+function toggleCat(k) {
+  if (G.selectedCats.has(k)) G.selectedCats.delete(k);
+  else G.selectedCats.add(k);
+  renderCatGrid();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function selectAllCats() {
+  CAT_KEYS.forEach(k => G.selectedCats.add(k));
+  renderCatGrid();
+}
+
+function clearAllCats() {
+  G.selectedCats.clear();
+  renderCatGrid();
+}
+
+function updateCatWarn() {
+  const warn = document.getElementById('cat-warn');
+  if (warn) warn.classList.toggle('show', G.selectedCats.size === 0);
+}
 
 // ── NAVIGATION ──
 function goTo(id) {
@@ -746,8 +898,13 @@ function changeTimer(d) {
 }
 
 function goToNames() {
+  if (G.selectedCats.size === 0) {
+    updateCatWarn();
+    return;
+  }
   G.useMrWhite = document.getElementById('tog-white').checked;
   G.useTwoImposters = document.getElementById('tog-two').checked;
+  G.imposterGetsWord = document.getElementById('tog-imp-word').checked;
 
   const list = document.getElementById('names-list');
   list.innerHTML = '';
@@ -780,9 +937,10 @@ function startGame() {
 }
 
 function assignRoles() {
-  const pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+  const activePairs = getActivePairs();
+  const pair = activePairs[Math.floor(Math.random() * activePairs.length)];
   G.civWord = pair[0];
-  G.impWord = pair[1];
+  G.impWord = G.imposterGetsWord ? pair[1] : '';
 
   G.players = G.names.map(name => ({ name, role: 'civilian', word: G.civWord }));
 
@@ -846,11 +1004,17 @@ function showReveal() {
     `;
   } else if (p.role === 'imposter') {
     back.className = 'card-face card-back imposter';
+    const wordHtml = p.word
+      ? `<div class="role-word">${p.word}</div>`
+      : `<div class="role-word">???</div>`;
+    const hintHtml = p.word
+      ? `നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>ചർച്ചകൾ ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.`
+      : `നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>നിങ്ങൾക്ക് വാക്ക് ഇല്ല – ചർച്ച ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.`;
     back.innerHTML = `
       <div class="role-badge">🔴 ഇംപോസ്റ്റർ</div>
       <div class="role-icon">😈</div>
-      <div class="role-word">${p.word}</div>
-      <div class="role-hint">നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>ചർച്ചകൾ ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.</div>
+      ${wordHtml}
+      <div class="role-hint">${hintHtml}</div>
     `;
   } else {
     back.className = 'card-face card-back mrwhite';
@@ -988,7 +1152,7 @@ function offerGuess(idx) {
   document.getElementById('guess-btn').disabled = true;
 
   const correct = G.civWord;
-  const pool = PAIRS.flat().filter(w => w !== correct && w !== G.impWord);
+  const pool = getActivePairs().flat().filter(w => w !== correct && w !== G.impWord);
   shuffle(pool);
   const options = shuffle([correct, ...pool.slice(0, 3)]);
 
@@ -1040,7 +1204,8 @@ function showResult(outcome) {
   }
 
   document.getElementById('r-civ-word').textContent = G.civWord;
-  document.getElementById('r-imp-word').textContent = G.impWord;
+  document.getElementById('r-imp-word').textContent = G.impWord || '—';
+  document.getElementById('r-imp-row').style.display = G.impWord ? '' : 'none';
 
   const rows = document.getElementById('r-players');
   rows.innerHTML = '';
@@ -1110,6 +1275,7 @@ function spawnConfetti() {
 }
 
 // Init
+renderCatGrid();
 goTo('s-welcome');
 </script>
 </body>
