@@ -5,26 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0f0c1a">
+  <meta name="theme-color" content="#0a0408">
   <title>ഇംപോസ്റ്റർ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f0c1a;
-      --surface: #1e1a2e;
-      --surface2: #2a2545;
-      --accent: #7c3aed;
-      --accent-light: #a78bfa;
-      --text: #f5f3ff;
-      --text-muted: #8b7bb3;
+      --bg: #0a0408;
+      --surface: #1a0d12;
+      --surface2: #28151c;
+      --accent: #dc2626;
+      --accent-light: #fca5a5;
+      --ember: #fcd34d;
+      --text: #f5e8e8;
+      --text-muted: #9b7884;
       --radius: 16px;
-      --civilian-bg: #064e3b;
-      --civilian-color: #34d399;
-      --imposter-bg: #7f1d1d;
-      --imposter-color: #f87171;
-      --mrwhite-bg: #78350f;
-      --mrwhite-color: #fbbf24;
+      --civilian-bg: #052e16;
+      --civilian-color: #6ee7b7;
+      --imposter-bg: #450a0a;
+      --imposter-color: #fca5a5;
+      --mrwhite-bg: #451a03;
+      --mrwhite-color: #fcd34d;
     }
 
     * {
@@ -84,10 +85,18 @@
       line-height: 1;
     }
     .btn:active { transform: scale(0.97); opacity: 0.88; }
-    .btn-primary { background: linear-gradient(135deg, #6d28d9, #9333ea); color: white; }
+    .btn-primary {
+      background: linear-gradient(135deg, #991b1b, #dc2626);
+      color: white;
+      box-shadow: 0 0 24px rgba(220, 38, 38, 0.25);
+    }
     .btn-secondary { background: var(--surface2); color: var(--accent-light); border: 1.5px solid var(--accent); }
-    .btn-danger { background: linear-gradient(135deg, #991b1b, #dc2626); color: white; }
-    .btn-success { background: linear-gradient(135deg, #065f46, #059669); color: white; }
+    .btn-danger {
+      background: linear-gradient(135deg, #450a0a, #7f1d1d);
+      color: white;
+      box-shadow: 0 0 24px rgba(127, 29, 29, 0.35);
+    }
+    .btn-success { background: linear-gradient(135deg, #064e3b, #065f46); color: white; }
     .btn:disabled { opacity: 0.35; pointer-events: none; }
 
     /* ── SHARED ── */
@@ -116,21 +125,35 @@
     /* ── WELCOME ── */
     #s-welcome {
       justify-content: center; gap: 12px; text-align: center;
-      background: radial-gradient(ellipse at 50% 25%, #2d1b69 0%, #0f0c1a 65%);
+      background:
+        radial-gradient(ellipse at 50% 22%, #4c0519 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 95%, #1a0707 0%, transparent 60%),
+        var(--bg);
     }
     .logo-wrap {
       font-size: 82px; line-height: 1; margin-bottom: 4px;
-      animation: float 3.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.55));
+      animation: flicker 3.5s ease-in-out infinite;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-14px); }
+    @keyframes flicker {
+      0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.55)); }
+      45% { transform: translateY(-12px); filter: drop-shadow(0 0 26px rgba(252, 211, 77, 0.55)); }
+      55% { transform: translateY(-12px); filter: drop-shadow(0 0 22px rgba(220, 38, 38, 0.7)); }
     }
     #s-welcome h1 {
       font-size: 44px; font-weight: 900;
-      background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+      background: linear-gradient(135deg, #fecaca 0%, #f87171 45%, #fcd34d 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text; margin-bottom: 2px;
+      letter-spacing: 0.02em;
+    }
+    .version-badge {
+      position: fixed; left: 0; right: 0;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      text-align: center;
+      font-size: 11px; letter-spacing: 0.18em;
+      color: var(--text-muted); opacity: 0.55;
+      pointer-events: none;
     }
     .tagline { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; }
     .how-to-card {
@@ -326,6 +349,14 @@
       transition: color 0.3s;
     }
     .timer-text.urgent { color: #f87171; }
+    .timer-wrap { cursor: pointer; }
+    .timer-wrap.paused .timer-progress { stroke: var(--ember); opacity: 0.7; }
+    .timer-wrap.paused .timer-text { color: var(--ember); }
+    .timer-hint {
+      font-size: 12px; color: var(--text-muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-top: -8px;
+    }
     .rules-card { background: var(--surface); border-radius: var(--radius); padding: 18px 20px; width: 100%; max-width: 400px; }
     .rules-card h3 { color: var(--accent-light); margin-bottom: 10px; font-size: 15px; }
     .rules-card ul { padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 2; }
@@ -385,7 +416,9 @@
     #s-result {
       justify-content: flex-start; align-items: center;
       text-align: center; gap: 16px;
-      background: radial-gradient(ellipse at 50% 20%, #1e1a2e 0%, #0f0c1a 70%);
+      background:
+        radial-gradient(ellipse at 50% 18%, #3f0a18 0%, transparent 55%),
+        var(--bg);
     }
     .result-emoji {
       font-size: 80px; margin-top: 16px;
@@ -464,6 +497,7 @@
   <div class="w-full">
     <button class="btn btn-primary" onclick="goTo('s-setup')">കളി തുടങ്ങൂ →</button>
   </div>
+  <div class="version-badge" id="app-version">v0.0.1</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -609,12 +643,12 @@
     <span class="screen-title">ചർച്ചാ സമയം 💬</span>
   </div>
 
-  <div class="timer-wrap">
+  <div class="timer-wrap" id="t-wrap" onclick="toggleTimerPause()">
     <svg class="timer-svg" viewBox="0 0 190 190">
       <defs>
         <linearGradient id="tGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7c3aed"/>
-          <stop offset="100%" stop-color="#a855f7"/>
+          <stop offset="0%" stop-color="#dc2626"/>
+          <stop offset="100%" stop-color="#fcd34d"/>
         </linearGradient>
       </defs>
       <circle class="timer-bg" cx="95" cy="95" r="85"/>
@@ -622,6 +656,7 @@
     </svg>
     <div class="timer-text" id="t-text">3:00</div>
   </div>
+  <div class="timer-hint" id="t-hint">ടാപ്പ് ചെയ്ത് നിർത്തുക</div>
 
   <div class="rules-card">
     <h3>📋 ഓർക്കുക</h3>
@@ -710,6 +745,9 @@
      JAVASCRIPT
 ══════════════════════════════════════ -->
 <script>
+// ── APP VERSION ──
+const APP_VERSION = 'v0.0.1';
+
 // ── WORD PAIRS BY CATEGORY (all Malayalam) ──
 const CATEGORIES = {
   food: {
@@ -824,6 +862,7 @@ const G = {
   cardFlipped: false,
   timerInterval: null,
   timerLeft: 0,
+  timerPaused: false,
   voteRound: 0,
   currentVote: -1,
   votes: [],          // one per player
@@ -878,6 +917,48 @@ function updateCatWarn() {
   if (warn) warn.classList.toggle('show', G.selectedCats.size === 0);
 }
 
+// ── SETTINGS PERSISTENCE ──
+const SETTINGS_KEY = 'imposter-settings-v1';
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      count: G.count,
+      timer: G.timer,
+      useMrWhite: G.useMrWhite,
+      useTwoImposters: G.useTwoImposters,
+      imposterGetsWord: G.imposterGetsWord,
+      cats: [...G.selectedCats],
+    }));
+  } catch (e) {}
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (typeof s.count === 'number') G.count = Math.max(3, Math.min(10, s.count));
+    if (typeof s.timer === 'number') G.timer = Math.max(60, Math.min(600, s.timer));
+    if (typeof s.useMrWhite === 'boolean') G.useMrWhite = s.useMrWhite;
+    if (typeof s.useTwoImposters === 'boolean') G.useTwoImposters = s.useTwoImposters;
+    if (typeof s.imposterGetsWord === 'boolean') G.imposterGetsWord = s.imposterGetsWord;
+    if (Array.isArray(s.cats)) {
+      const valid = s.cats.filter(k => CAT_KEYS.includes(k));
+      if (valid.length) G.selectedCats = new Set(valid);
+    }
+  } catch (e) {}
+}
+
+function applyLoadedSettingsToUI() {
+  document.getElementById('count-display').textContent = G.count;
+  const m = Math.floor(G.timer / 60), s = G.timer % 60;
+  document.getElementById('timer-setup').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('tog-white').checked = G.useMrWhite;
+  document.getElementById('tog-two').checked = G.useTwoImposters;
+  document.getElementById('tog-imp-word').checked = G.imposterGetsWord;
+}
+
 // ── NAVIGATION ──
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => {
@@ -905,6 +986,7 @@ function goToNames() {
   G.useMrWhite = document.getElementById('tog-white').checked;
   G.useTwoImposters = document.getElementById('tog-two').checked;
   G.imposterGetsWord = document.getElementById('tog-imp-word').checked;
+  saveSettings();
 
   const list = document.getElementById('names-list');
   list.innerHTML = '';
@@ -1048,16 +1130,34 @@ function revealDone() {
 // ── PLAY PHASE ──
 function startPlay() {
   G.timerLeft = G.timer;
+  G.timerPaused = false;
+  applyPauseUI();
   updateTimer();
 
   if (G.timerInterval) clearInterval(G.timerInterval);
   G.timerInterval = setInterval(() => {
+    if (G.timerPaused || G.timerLeft <= 0) return;
     G.timerLeft--;
     updateTimer();
     if (G.timerLeft <= 0) clearInterval(G.timerInterval);
   }, 1000);
 
   goTo('s-play');
+}
+
+function toggleTimerPause() {
+  if (G.timerLeft <= 0) return;
+  G.timerPaused = !G.timerPaused;
+  applyPauseUI();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function applyPauseUI() {
+  const wrap = document.getElementById('t-wrap');
+  const hint = document.getElementById('t-hint');
+  if (!wrap || !hint) return;
+  wrap.classList.toggle('paused', G.timerPaused);
+  hint.textContent = G.timerPaused ? '▶ തുടരാൻ ടാപ്പ് ചെയ്യൂ' : '⏸ നിർത്താൻ ടാപ്പ് ചെയ്യൂ';
 }
 
 function updateTimer() {
@@ -1129,11 +1229,17 @@ function tallyVotes() {
   const tally = {};
   G.votes.forEach(v => tally[v] = (tally[v] || 0) + 1);
 
-  let maxV = 0, elim = -1;
-  Object.entries(tally).forEach(([idx, cnt]) => {
-    if (cnt > maxV) { maxV = cnt; elim = +idx; }
-  });
+  let maxV = 0;
+  Object.values(tally).forEach(cnt => { if (cnt > maxV) maxV = cnt; });
+  const tied = Object.entries(tally).filter(([, c]) => c === maxV).map(([i]) => +i);
 
+  if (tied.length > 1) {
+    G.eliminatedIdx = -1;
+    showResult('imp-wins-tie');
+    return;
+  }
+
+  const elim = tied[0];
   G.eliminatedIdx = elim;
   const ep = G.players[elim];
 
@@ -1196,6 +1302,11 @@ function showResult(outcome) {
     rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
     rTitle.style.color = '#f87171';
     rSub.textContent = 'ഇംപോസ്റ്ററെ തിരിച്ചറിഞ്ഞില്ല!';
+  } else if (outcome === 'imp-wins-tie') {
+    rEmoji.textContent = '⚖️';
+    rTitle.textContent = 'സമനില!';
+    rTitle.style.color = '#fcd34d';
+    rSub.textContent = 'വോട്ടുകൾ തുല്യം – ഇംപോസ്റ്റർ രക്ഷപ്പെട്ടു.';
   } else {
     rEmoji.textContent = '🎯';
     rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
@@ -1246,7 +1357,7 @@ function spawnConfetti() {
     y: -20,
     w: Math.random() * 10 + 5,
     h: Math.random() * 6 + 3,
-    color: ['#7c3aed','#a855f7','#34d399','#fbbf24','#f87171','#60a5fa','#f0abfc'][Math.floor(Math.random()*7)],
+    color: ['#dc2626','#fca5a5','#fcd34d','#6ee7b7','#f59e0b','#ef4444','#fde68a'][Math.floor(Math.random()*7)],
     vx: (Math.random() - 0.5) * 3,
     vy: Math.random() * 3 + 2,
     va: (Math.random() - 0.5) * 8,
@@ -1275,6 +1386,10 @@ function spawnConfetti() {
 }
 
 // Init
+const verEl = document.getElementById('app-version');
+if (verEl) verEl.textContent = APP_VERSION;
+loadSettings();
+applyLoadedSettingsToUI();
 renderCatGrid();
 goTo('s-welcome');
 </script>
