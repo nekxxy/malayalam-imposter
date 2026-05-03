@@ -243,6 +243,70 @@
     }
     .cat-empty-warn.show { display: block; }
 
+    /* ── INFO MODAL ── */
+    .info-btn {
+      background: var(--surface2); color: var(--accent-light);
+      border: none; width: 42px; height: 42px;
+      border-radius: 11px; font-size: 20px; cursor: pointer;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .info-btn:active { transform: scale(0.94); }
+    .modal {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 1; transition: opacity 0.18s ease;
+    }
+    .modal.hidden { opacity: 0; pointer-events: none; }
+    .modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(5, 2, 4, 0.7); backdrop-filter: blur(4px);
+    }
+    .modal-card {
+      position: relative;
+      background: var(--surface);
+      border-top: 1px solid rgba(220, 38, 38, 0.4);
+      border-radius: 22px 22px 0 0;
+      width: 100%; max-width: 460px;
+      max-height: 82vh; overflow-y: auto;
+      padding: 22px 22px max(28px, env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 40px rgba(220, 38, 38, 0.18);
+      transform: translateY(0);
+      transition: transform 0.22s cubic-bezier(.2,.7,.2,1);
+    }
+    .modal.hidden .modal-card { transform: translateY(20px); }
+    .modal-handle {
+      width: 38px; height: 4px; border-radius: 4px;
+      background: var(--surface2); margin: 0 auto 14px;
+    }
+    .modal-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .modal-header h2 {
+      font-size: 19px; font-weight: 800;
+      background: linear-gradient(135deg, #fecaca, #fcd34d);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      flex: 1;
+    }
+    .modal-close {
+      background: var(--surface2); border: none; color: var(--text);
+      width: 34px; height: 34px; border-radius: 10px;
+      font-size: 16px; cursor: pointer;
+    }
+    .info-section { margin-bottom: 16px; }
+    .info-section:last-child { margin-bottom: 0; }
+    .info-section h3 {
+      font-size: 14px; color: var(--accent-light);
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .info-section p {
+      font-size: 13px; color: var(--text-muted);
+      line-height: 1.65;
+    }
+
     /* ── NAMES ── */
     #s-names { gap: 10px; }
     .name-row {
@@ -297,9 +361,18 @@
     }
     .card-front {
       background: var(--surface); border: 2px dashed var(--surface2);
+      position: relative; overflow: hidden;
     }
-    .card-front-icon { font-size: 60px; margin-bottom: 14px; }
+    .card-front-icon { font-size: 60px; margin-bottom: 14px; transition: transform 0.15s; }
+    .card-front.holding .card-front-icon { transform: scale(1.08); }
     .card-front-text { font-size: 17px; color: var(--text-muted); text-align: center; line-height: 1.5; }
+    .hold-progress {
+      position: absolute; left: 0; bottom: 0;
+      height: 5px; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--ember));
+      transition: width 0.05s linear;
+    }
+    .hold-progress.full { width: 100% !important; }
     .card-back { transform: rotateY(180deg); }
     .card-back.civilian {
       background: linear-gradient(160deg, #064e3b 0%, #065f46 100%);
@@ -466,6 +539,21 @@
     .tag-civilian { background: rgba(52,211,153,.15); color: #34d399; }
     .tag-imposter { background: rgba(248,113,113,.15); color: #f87171; }
     .tag-mrwhite { background: rgba(251,191,36,.15); color: #fbbf24; }
+    .score-row {
+      display: flex; align-items: center; gap: 10px; padding: 7px 0;
+    }
+    .score-row + .score-row { border-top: 1px solid var(--surface2); }
+    .score-name { flex: 1; font-size: 15px; }
+    .score-val {
+      font-size: 18px; font-weight: 800; color: var(--ember);
+      min-width: 38px; text-align: right;
+    }
+    .score-delta {
+      font-size: 12px; font-weight: 700; color: var(--accent-light);
+      background: rgba(220,38,38,.18); padding: 3px 8px;
+      border-radius: 12px; margin-left: 4px;
+    }
+    .score-delta.zero { color: var(--text-muted); background: var(--surface2); }
     .result-actions { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
 
     /* ── CONFETTI ── */
@@ -497,7 +585,7 @@
   <div class="w-full">
     <button class="btn btn-primary" onclick="goTo('s-setup')">കളി തുടങ്ങൂ →</button>
   </div>
-  <div class="version-badge" id="app-version">v0.0.1</div>
+  <div class="version-badge" id="app-version">v0.0.2</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -506,7 +594,8 @@
 <div id="s-setup" class="screen hidden">
   <div class="screen-header">
     <button class="back-btn" onclick="goTo('s-welcome')">←</button>
-    <span class="screen-title">ഗെയിം സജ്ജീകരണം</span>
+    <span class="screen-title" style="flex:1">ഗെയിം സജ്ജീകരണം</span>
+    <button class="info-btn" onclick="openInfo()" aria-label="info">ⓘ</button>
   </div>
 
   <div class="section-card">
@@ -565,6 +654,16 @@
         <span class="toggle-slider"></span>
       </label>
     </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>പോയിന്റ് സിസ്റ്റം</h4>
+        <p>റൗണ്ടുകളിൽ സ്കോർ ട്രാക്ക് ചെയ്യൂ</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="tog-points">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
   </div>
 
   <div class="section-card">
@@ -619,15 +718,16 @@
 ══════════════════════════════════════ -->
 <div id="s-reveal" class="screen hidden">
   <div class="card-wrap">
-    <div class="card" id="role-card" onclick="flipCard()">
-      <div class="card-face card-front">
+    <div class="card" id="role-card">
+      <div class="card-face card-front" id="card-front">
         <div class="card-front-icon">🔒</div>
-        <div class="card-front-text">ടാപ്പ് ചെയ്ത്<br>നിങ്ങളുടെ റോൾ കാണൂ</div>
+        <div class="card-front-text">അമർത്തി പിടിക്കൂ<br>റോൾ വെളിപ്പെടും</div>
+        <div class="hold-progress" id="hold-progress"></div>
       </div>
       <div class="card-face card-back" id="card-back"></div>
     </div>
   </div>
-  <div class="tap-hint" id="tap-hint">കാർഡ് ടാപ്പ് ചെയ്യൂ 👆</div>
+  <div class="tap-hint" id="tap-hint">കാർഡ് അമർത്തി പിടിക്കൂ 👆</div>
   <div class="w-full" style="flex-shrink:0">
     <button class="btn btn-secondary" id="done-btn" style="display:none" onclick="revealDone()">
       മനസ്സിലായി, ഫോൺ മൂടൂ ✓
@@ -734,11 +834,75 @@
     <div id="r-players"></div>
   </div>
 
+  <div class="players-card" id="r-scoreboard" style="display:none">
+    <h4>🏆 സ്കോർബോർഡ്</h4>
+    <div id="r-scores"></div>
+  </div>
+
   <div class="result-actions">
     <button class="btn btn-primary" onclick="playAgain()">വീണ്ടും കളിക്കൂ 🔄</button>
-    <button class="btn btn-secondary" onclick="goTo('s-welcome')">ഹോം</button>
+    <button class="btn btn-secondary" onclick="goHome()">ഹോം</button>
   </div>
   <div style="height:24px; flex-shrink:0"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     INFO MODAL
+══════════════════════════════════════ -->
+<div id="info-modal" class="modal hidden" onclick="if(event.target===this)closeInfo()">
+  <div class="modal-backdrop" onclick="closeInfo()"></div>
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2>എങ്ങനെ കളിക്കാം</h2>
+      <button class="modal-close" onclick="closeInfo()">✕</button>
+    </div>
+
+    <div class="info-section">
+      <h3>🎯 ഗെയിമിന്റെ ലക്ഷ്യം</h3>
+      <p>ഓരോരുത്തർക്കും ഒരു രഹസ്യ വാക്ക് ലഭിക്കും. ഒരാൾ – ഇംപോസ്റ്റർ – വ്യത്യസ്തനാണ്. ചർച്ചയിലൂടെ സിവിലിയൻമാർ ഇംപോസ്റ്ററെ കണ്ടുപിടിക്കണം; ഇംപോസ്റ്റർ ഒളിഞ്ഞിരിക്കണം.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>👥 കളിക്കാരുടെ എണ്ണം</h3>
+      <p>3 മുതൽ 10 വരെ. കൂടുതൽ കളിക്കാർ = ഇംപോസ്റ്ററിന് ഒളിക്കാൻ പ്രയാസം.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>⏱ ടൈമർ</h3>
+      <p>ചർച്ചാ സമയം. ഓരോരുത്തരും തങ്ങളുടെ വാക്ക് സൂചിപ്പിച്ച് സംസാരിക്കൂ – നേരിട്ട് വാക്ക് പറയരുത്. ടാപ്പ് ചെയ്ത് ടൈമർ താൽക്കാലികമായി നിർത്താം.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>📝 ഇംപോസ്റ്ററിന് വാക്ക്</h3>
+      <p>ഓൺ: ഇംപോസ്റ്ററിന് <strong>അതേ വിഭാഗത്തിൽ നിന്നുള്ള</strong> വ്യത്യസ്ത വാക്ക് ലഭിക്കും (ഉദാ: സിവിലിയൻ "ചായ", ഇംപോസ്റ്റർ "കാപ്പി"). ഓഫ്: വാക്ക് ഇല്ലാതെ കളിക്കണം – ചർച്ച ശ്രദ്ധിച്ച് ഊഹിച്ച് സംസാരിക്കണം.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>🤫 Mr. White</h3>
+      <p>ഒരാൾക്ക് വാക്കേ ഇല്ലാതിരിക്കും. വോട്ട് ചെയ്ത് പുറത്താക്കിയാൽ, സിവിലിയൻ വാക്ക് ഊഹിക്കാൻ അവസരം – ശരിയായാൽ ജയിക്കും!</p>
+    </div>
+
+    <div class="info-section">
+      <h3>👯 രണ്ട് ഇംപോസ്റ്ററുകൾ</h3>
+      <p>5+ കളിക്കാർക്ക് ശുപാർശ. രണ്ട് പേർക്കും ഒരേ ഇംപോസ്റ്റർ വാക്ക് ലഭിക്കും.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>📚 വാക്കുകളുടെ വിഭാഗം</h3>
+      <p>വാക്ക് ജോഡികൾ വിഭാഗങ്ങളായി തിരിച്ചിരിക്കുന്നു. ഒന്നോ അതിലധികമോ തിരഞ്ഞെടുക്കാം. തിരഞ്ഞെടുത്ത വിഭാഗങ്ങളിൽ നിന്ന് മാത്രമേ വാക്കുകൾ വരൂ.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>🏆 പോയിന്റ് സിസ്റ്റം</h3>
+      <p>ഓൺ ആക്കിയാൽ, ഓരോ റൗണ്ടും സ്കോർ ട്രാക്ക് ചെയ്യും. സിവിലിയൻ ജയിച്ചാൽ ഓരോ സിവിലിയനും <strong>+1</strong>, ഇംപോസ്റ്റർ ജയിച്ചാൽ ഓരോ ഇംപോസ്റ്ററും <strong>+2</strong>, Mr. White ജയിച്ചാൽ <strong>+3</strong>. ഹോമിലേക്ക് മടങ്ങുമ്പോൾ സ്കോർ പുതുക്കും.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>🃏 റോൾ കാണൽ</h3>
+      <p>ഓരോ കളിക്കാരനും കാർഡ് <strong>അമർത്തി പിടിക്കൂ</strong> – വാക്ക് വെളിപ്പെടും. വിട്ടാൽ വീണ്ടും തുടങ്ങണം. കണ്ടു കഴിഞ്ഞ് "ഫോൺ മൂടൂ" അമർത്തുമ്പോൾ ഒരു ശബ്ദം – അടുത്ത കളിക്കാരന് കൊടുക്കാം.</p>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -746,7 +910,7 @@
 ══════════════════════════════════════ -->
 <script>
 // ── APP VERSION ──
-const APP_VERSION = 'v0.0.1';
+const APP_VERSION = 'v0.0.2';
 
 // ── WORD PAIRS BY CATEGORY (all Malayalam) ──
 const CATEGORIES = {
@@ -761,6 +925,12 @@ const CATEGORIES = {
       ['ബ്രഡ്', 'ചപ്പാത്തി'],
       ['ഇഡ്ഡലി', 'ഉപ്പുമാവ്'],
       ['ഗോതമ്പ്', 'അരി'],
+      ['പുട്ട്', 'അപ്പം'],
+      ['ബിരിയാണി', 'ഫ്രൈഡ് റൈസ്'],
+      ['പിസ്സ', 'ബർഗർ'],
+      ['ജ്യൂസ്', 'മിൽക്‌ഷേക്ക്'],
+      ['ഐസ്‌ക്രീം', 'കുൽഫി'],
+      ['സാമ്പാർ', 'രസം'],
     ],
   },
   animals: {
@@ -769,6 +939,11 @@ const CATEGORIES = {
       ['ആന', 'കുതിര'],
       ['പൂച്ച', 'നായ'],
       ['കോഴി', 'താറാവ്'],
+      ['സിംഹം', 'കടുവ'],
+      ['തവള', 'പാമ്പ്'],
+      ['മത്സ്യം', 'ഞണ്ട്'],
+      ['കരടി', 'കുരങ്ങ്'],
+      ['മാൻ', 'ഒട്ടകം'],
     ],
   },
   nature: {
@@ -778,9 +953,13 @@ const CATEGORIES = {
       ['മഴ', 'മഞ്ഞ്'],
       ['കടൽ', 'നദി'],
       ['പുഴ', 'കുളം'],
-      ['ആകാശം', 'കടൽ'],
+      ['ആകാശം', 'ഭൂമി'],
       ['താമര', 'റോസ്'],
       ['പൂന്തോട്ടം', 'കാട്'],
+      ['മേഘം', 'കാറ്റ്'],
+      ['മല', 'വയൽ'],
+      ['വനം', 'മരുഭൂമി'],
+      ['നക്ഷത്രം', 'ഗ്രഹം'],
     ],
   },
   transport: {
@@ -789,6 +968,11 @@ const CATEGORIES = {
       ['ട്രെയിൻ', 'ബസ്'],
       ['ബോട്ട്', 'കപ്പൽ'],
       ['ബൈക്ക്', 'സ്കൂട്ടർ'],
+      ['വിമാനം', 'ഹെലികോപ്റ്റർ'],
+      ['ടാക്സി', 'ഓട്ടോ'],
+      ['മെട്രോ', 'ലോക്കൽ ട്രെയിൻ'],
+      ['സൈക്കിൾ', 'കാർ'],
+      ['ലോറി', 'ടെമ്പോ'],
     ],
   },
   places: {
@@ -801,13 +985,24 @@ const CATEGORIES = {
       ['ക്ഷേത്രം', 'പള്ളി'],
       ['ബേക്കറി', 'ഹോട്ടൽ'],
       ['വീട്', 'ഫ്ലാറ്റ്'],
+      ['മ്യൂസിയം', 'ലൈബ്രറി'],
+      ['പാർക്ക്', 'ബീച്ച്'],
+      ['മാൾ', 'കട'],
+      ['ആശുപത്രി', 'ക്ലിനിക്ക്'],
+      ['മൂന്നാർ', 'വയനാട്'],
+      ['ദുബായ്', 'സിംഗപ്പൂർ'],
     ],
   },
   sports: {
     name: 'കായികം', emoji: '⚽',
     pairs: [
       ['ക്രിക്കറ്റ്', 'ഫുട്ബോൾ'],
-      ['ബസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
+      ['ബാസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
+      ['ടെന്നീസ്', 'ബാഡ്മിന്റൺ'],
+      ['നീന്തൽ', 'ഓട്ടം'],
+      ['ചെസ്', 'കാരംസ്'],
+      ['ബോക്സിങ്', 'ഗുസ്തി'],
+      ['ഷൂട്ടിങ്', 'വില്ലുവിദ്യ'],
     ],
   },
   tech: {
@@ -817,6 +1012,11 @@ const CATEGORIES = {
       ['ഫോൺ', 'ടാബ്ലറ്റ്'],
       ['ലാപ്ടോപ്', 'കമ്പ്യൂട്ടർ'],
       ['ഇലക്ട്രിക്', 'സോളാർ'],
+      ['ഹെഡ്ഫോൺ', 'ഇയർബഡ്സ്'],
+      ['ക്യാമറ', 'പ്രിന്റർ'],
+      ['വൈഫൈ', 'ബ്ലൂടൂത്ത്'],
+      ['യൂട്യൂബ്', 'നെറ്റ്ഫ്ലിക്സ്'],
+      ['വാട്സാപ്പ്', 'ഇൻസ്റ്റാഗ്രാം'],
     ],
   },
   entertainment: {
@@ -826,6 +1026,27 @@ const CATEGORIES = {
       ['പുസ്തകം', 'മാഗസിൻ'],
       ['കവിത', 'കഥ'],
       ['ഗിറ്റാർ', 'വീണ'],
+      ['പിയാനോ', 'വയലിൻ'],
+      ['ചിത്രകല', 'ശിൽപകല'],
+      ['മാജിക്', 'സർക്കസ്'],
+      ['തിയേറ്റർ', 'OTT'],
+    ],
+  },
+  people: {
+    name: 'പ്രശസ്തർ', emoji: '🌟',
+    pairs: [
+      ['മോഹൻലാൽ', 'മമ്മൂട്ടി'],
+      ['ദുൽഖർ സൽമാൻ', 'ഫഹദ് ഫാസിൽ'],
+      ['പൃഥ്വിരാജ്', 'ടൊവിനോ തോമസ്'],
+      ['ജയറാം', 'സുരേഷ് ഗോപി'],
+      ['രജനികാന്ത്', 'കമൽ ഹാസൻ'],
+      ['സച്ചിൻ', 'ധോണി'],
+      ['ഷാരൂഖ് ഖാൻ', 'സൽമാൻ ഖാൻ'],
+      ['വിരാട് കോലി', 'രോഹിത് ശർമ്മ'],
+      ['അമിതാഭ്', 'അക്ഷയ് കുമാർ'],
+      ['മഞ്ജു വാര്യർ', 'ശോഭന'],
+      ['ദീപിക പദുകോൺ', 'പ്രിയങ്ക ചോപ്ര'],
+      ['വിജയ്', 'അജിത്'],
     ],
   },
   misc: {
@@ -838,6 +1059,11 @@ const CATEGORIES = {
       ['ഷർട്ട്', 'കുർത്ത'],
       ['കണ്ണട', 'ലെൻസ്'],
       ['തലയണ', 'കമ്പളം'],
+      ['തൊപ്പി', 'ഷൂസ്'],
+      ['ടൂത്ത് ബ്രഷ്', 'കോംബ്'],
+      ['ഡയറി', 'നോട്ട്ബുക്ക്'],
+      ['വാച്ച്', 'ബ്രേസ്‌ലെറ്റ്'],
+      ['അലാം ക്ലോക്ക്', 'കലണ്ടർ'],
     ],
   },
 };
@@ -853,6 +1079,9 @@ const G = {
   useMrWhite: false,
   useTwoImposters: false,
   imposterGetsWord: true,
+  usePoints: false,
+  scores: {},        // {name: total}
+  lastDeltas: {},    // {name: deltaForLastRound}
   selectedCats: new Set(CAT_KEYS),
   names: [],
   players: [],        // [{name, role, word}]
@@ -928,6 +1157,7 @@ function saveSettings() {
       useMrWhite: G.useMrWhite,
       useTwoImposters: G.useTwoImposters,
       imposterGetsWord: G.imposterGetsWord,
+      usePoints: G.usePoints,
       cats: [...G.selectedCats],
     }));
   } catch (e) {}
@@ -943,6 +1173,7 @@ function loadSettings() {
     if (typeof s.useMrWhite === 'boolean') G.useMrWhite = s.useMrWhite;
     if (typeof s.useTwoImposters === 'boolean') G.useTwoImposters = s.useTwoImposters;
     if (typeof s.imposterGetsWord === 'boolean') G.imposterGetsWord = s.imposterGetsWord;
+    if (typeof s.usePoints === 'boolean') G.usePoints = s.usePoints;
     if (Array.isArray(s.cats)) {
       const valid = s.cats.filter(k => CAT_KEYS.includes(k));
       if (valid.length) G.selectedCats = new Set(valid);
@@ -957,6 +1188,7 @@ function applyLoadedSettingsToUI() {
   document.getElementById('tog-white').checked = G.useMrWhite;
   document.getElementById('tog-two').checked = G.useTwoImposters;
   document.getElementById('tog-imp-word').checked = G.imposterGetsWord;
+  document.getElementById('tog-points').checked = G.usePoints;
 }
 
 // ── NAVIGATION ──
@@ -964,6 +1196,20 @@ function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.toggle('hidden', s.id !== id);
   });
+}
+
+function openInfo() {
+  document.getElementById('info-modal').classList.remove('hidden');
+}
+function closeInfo() {
+  document.getElementById('info-modal').classList.add('hidden');
+}
+
+function goHome() {
+  G.scores = {};
+  G.lastDeltas = {};
+  G.recentPairs = [];
+  goTo('s-welcome');
 }
 
 // ── SETUP ──
@@ -986,6 +1232,10 @@ function goToNames() {
   G.useMrWhite = document.getElementById('tog-white').checked;
   G.useTwoImposters = document.getElementById('tog-two').checked;
   G.imposterGetsWord = document.getElementById('tog-imp-word').checked;
+  const wasPoints = G.usePoints;
+  G.usePoints = document.getElementById('tog-points').checked;
+  // Reset scoreboard when toggling points or starting a new lineup
+  if (wasPoints !== G.usePoints) G.scores = {};
   saveSettings();
 
   const list = document.getElementById('names-list');
@@ -1006,23 +1256,47 @@ function goToNames() {
 
 // ── GAME START ──
 function startGame() {
-  G.names = [];
+  const newNames = [];
   for (let i = 0; i < G.count; i++) {
     const v = document.getElementById(`n${i}`).value.trim();
-    G.names.push(v || `P${i+1}`);
+    newNames.push(v || `P${i+1}`);
   }
+  // Reset scoreboard if the lineup changed
+  const sameLineup = G.names.length === newNames.length &&
+    G.names.every((n, i) => n === newNames[i]);
+  if (!sameLineup) {
+    G.scores = {};
+    G.recentPairs = [];
+  }
+  G.names = newNames;
   assignRoles();
   G.revealIdx = 0;
   G.votes = [];
   G.voteRound = 0;
+  G.lastDeltas = {};
   showPass();
 }
 
+function pickPair() {
+  const active = getActivePairs();
+  if (!G.recentPairs) G.recentPairs = [];
+  // Skip pairs used in the last N rounds (where N scales with active pool size)
+  const skipCount = Math.min(G.recentPairs.length, Math.max(1, Math.floor(active.length / 3)));
+  const recent = new Set(G.recentPairs.slice(-skipCount).map(p => p[0] + '|' + p[1]));
+  let pool = active.filter(p => !recent.has(p[0] + '|' + p[1]));
+  if (pool.length === 0) pool = active;
+  const pair = pool[Math.floor(Math.random() * pool.length)];
+  // Track the canonical (unsorted) pair for de-duping
+  G.recentPairs.push(pair);
+  if (G.recentPairs.length > active.length) G.recentPairs.shift();
+  // Randomly swap which side is the civilian word
+  return Math.random() < 0.5 ? [pair[0], pair[1]] : [pair[1], pair[0]];
+}
+
 function assignRoles() {
-  const activePairs = getActivePairs();
-  const pair = activePairs[Math.floor(Math.random() * activePairs.length)];
-  G.civWord = pair[0];
-  G.impWord = G.imposterGetsWord ? pair[1] : '';
+  const [civ, imp] = pickPair();
+  G.civWord = civ;
+  G.impWord = G.imposterGetsWord ? imp : '';
 
   G.players = G.names.map(name => ({ name, role: 'civilian', word: G.civWord }));
 
@@ -1068,12 +1342,18 @@ function showPass() {
 function showReveal() {
   const p = G.players[G.revealIdx];
   G.cardFlipped = false;
+  G.doneCooldown = false;
 
   const card = document.getElementById('role-card');
   card.classList.remove('flipped');
 
+  document.getElementById('hold-progress').style.width = '0%';
+  document.getElementById('card-front').classList.remove('holding');
   document.getElementById('done-btn').style.display = 'none';
   document.getElementById('tap-hint').style.display = 'block';
+  bindHoldListeners();
+  // Warm up audio context on first user nav into reveal so iOS allows it
+  getAudioCtx();
 
   const back = document.getElementById('card-back');
   if (p.role === 'civilian') {
@@ -1111,20 +1391,107 @@ function showReveal() {
   goTo('s-reveal');
 }
 
-function flipCard() {
+// ── HOLD-TO-REVEAL ──
+const HOLD_MS = 850;
+let holdRAF = null;
+let holdStart = 0;
+
+function bindHoldListeners() {
+  const front = document.getElementById('card-front');
+  if (!front || front.dataset.bound) return;
+  front.dataset.bound = '1';
+  const start = (e) => {
+    if (G.cardFlipped) return;
+    e.preventDefault();
+    holdStart = performance.now();
+    front.classList.add('holding');
+    if (navigator.vibrate) navigator.vibrate(15);
+    cancelAnimationFrame(holdRAF);
+    const tick = (now) => {
+      const p = Math.min(1, (now - holdStart) / HOLD_MS);
+      document.getElementById('hold-progress').style.width = (p * 100) + '%';
+      if (p >= 1) {
+        completeReveal();
+        return;
+      }
+      holdRAF = requestAnimationFrame(tick);
+    };
+    holdRAF = requestAnimationFrame(tick);
+  };
+  const cancel = () => {
+    if (G.cardFlipped) return;
+    cancelAnimationFrame(holdRAF);
+    front.classList.remove('holding');
+    document.getElementById('hold-progress').style.width = '0%';
+  };
+  front.addEventListener('pointerdown', start);
+  front.addEventListener('pointerup', cancel);
+  front.addEventListener('pointerleave', cancel);
+  front.addEventListener('pointercancel', cancel);
+}
+
+function completeReveal() {
   if (G.cardFlipped) return;
   G.cardFlipped = true;
+  cancelAnimationFrame(holdRAF);
+  document.getElementById('hold-progress').style.width = '100%';
+  document.getElementById('card-front').classList.remove('holding');
   document.getElementById('role-card').classList.add('flipped');
   document.getElementById('tap-hint').style.display = 'none';
-  if (navigator.vibrate) navigator.vibrate(60);
+  if (navigator.vibrate) navigator.vibrate([40, 50, 40]);
+  playRevealSound();
   setTimeout(() => {
     document.getElementById('done-btn').style.display = 'block';
   }, 560);
 }
 
 function revealDone() {
-  G.revealIdx++;
-  showPass();
+  if (G.doneCooldown) return;
+  G.doneCooldown = true;
+  playHandoverSound();
+  if (navigator.vibrate) navigator.vibrate([30, 60, 30, 60, 80]);
+  setTimeout(() => {
+    G.doneCooldown = false;
+    G.revealIdx++;
+    showPass();
+  }, 700);
+}
+
+// ── SOUND (WebAudio beeps) ──
+let audioCtx = null;
+function getAudioCtx() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) {}
+  return audioCtx;
+}
+
+function tone(freq, dur, vol = 0.22, type = 'sine', when = 0) {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const t0 = ctx.currentTime + when;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+
+function playRevealSound() {
+  tone(660, 0.18, 0.18, 'triangle', 0);
+  tone(990, 0.22, 0.18, 'triangle', 0.08);
+}
+
+function playHandoverSound() {
+  tone(523, 0.16, 0.22, 'sine', 0);
+  tone(392, 0.20, 0.22, 'sine', 0.14);
+  tone(523, 0.28, 0.22, 'sine', 0.32);
 }
 
 // ── PLAY PHASE ──
@@ -1253,6 +1620,7 @@ function tallyVotes() {
 // ── IMPOSTER GUESS ──
 function offerGuess(idx) {
   const p = G.players[idx];
+  G.guesserRole = p.role; // 'imposter' | 'mrwhite'
   document.getElementById('guess-name').textContent = p.name;
   G.guessWord = null;
   document.getElementById('guess-btn').disabled = true;
@@ -1282,11 +1650,55 @@ function offerGuess(idx) {
 }
 
 function confirmGuess() {
-  showResult(G.guessWord === G.civWord ? 'imp-wins-guess' : 'civ-wins');
+  if (G.guessWord !== G.civWord) {
+    showResult('civ-wins');
+  } else if (G.guesserRole === 'mrwhite') {
+    showResult('mrw-wins-guess');
+  } else {
+    showResult('imp-wins-guess');
+  }
 }
 
 // ── RESULTS ──
+function applyScores(outcome) {
+  G.lastDeltas = {};
+  if (!G.usePoints) return;
+  G.players.forEach(p => {
+    let d = 0;
+    if (outcome === 'civ-wins' && p.role === 'civilian') d = 1;
+    else if ((outcome === 'imp-wins' || outcome === 'imp-wins-guess' || outcome === 'imp-wins-tie') && p.role === 'imposter') d = 2;
+    else if (outcome === 'mrw-wins-guess' && p.role === 'mrwhite') d = 3;
+    G.scores[p.name] = (G.scores[p.name] || 0) + d;
+    G.lastDeltas[p.name] = d;
+  });
+}
+
+function renderScoreboard() {
+  const card = document.getElementById('r-scoreboard');
+  if (!G.usePoints) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const list = document.getElementById('r-scores');
+  list.innerHTML = '';
+  const sorted = G.players
+    .map((p, i) => ({ name: p.name, idx: i, total: G.scores[p.name] || 0, delta: G.lastDeltas[p.name] || 0 }))
+    .sort((a, b) => b.total - a.total);
+  sorted.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    const deltaCls = s.delta > 0 ? '' : 'zero';
+    const deltaText = s.delta > 0 ? `+${s.delta}` : '+0';
+    row.innerHTML = `
+      <span style="font-size:20px">${EMOJIS[s.idx % EMOJIS.length]}</span>
+      <span class="score-name">${s.name}</span>
+      <span class="score-delta ${deltaCls}">${deltaText}</span>
+      <span class="score-val">${s.total}</span>
+    `;
+    list.appendChild(row);
+  });
+}
+
 function showResult(outcome) {
+  applyScores(outcome);
   const rEmoji = document.getElementById('r-emoji');
   const rTitle = document.getElementById('r-title');
   const rSub   = document.getElementById('r-sub');
@@ -1307,6 +1719,12 @@ function showResult(outcome) {
     rTitle.textContent = 'സമനില!';
     rTitle.style.color = '#fcd34d';
     rSub.textContent = 'വോട്ടുകൾ തുല്യം – ഇംപോസ്റ്റർ രക്ഷപ്പെട്ടു.';
+  } else if (outcome === 'mrw-wins-guess') {
+    rEmoji.textContent = '🤫';
+    rTitle.textContent = 'Mr. White ജയിച്ചു!';
+    rTitle.style.color = '#fcd34d';
+    rSub.textContent = 'ഊഹം ശരിയായിരുന്നു!';
+    spawnConfetti();
   } else {
     rEmoji.textContent = '🎯';
     rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
@@ -1333,6 +1751,7 @@ function showResult(outcome) {
     rows.appendChild(row);
   });
 
+  renderScoreboard();
   goTo('s-result');
 }
 
