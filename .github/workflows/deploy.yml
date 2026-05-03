@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/imposter-word-category-options-e0VnP
   workflow_dispatch:
 
 permissions:
