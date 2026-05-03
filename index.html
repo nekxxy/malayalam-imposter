@@ -5,26 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0f0c1a">
+  <meta name="theme-color" content="#0a0408">
   <title>ഇംപോസ്റ്റർ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f0c1a;
-      --surface: #1e1a2e;
-      --surface2: #2a2545;
-      --accent: #7c3aed;
-      --accent-light: #a78bfa;
-      --text: #f5f3ff;
-      --text-muted: #8b7bb3;
+      --bg: #0a0408;
+      --surface: #1a0d12;
+      --surface2: #28151c;
+      --accent: #dc2626;
+      --accent-light: #fca5a5;
+      --ember: #fcd34d;
+      --text: #f5e8e8;
+      --text-muted: #9b7884;
       --radius: 16px;
-      --civilian-bg: #064e3b;
-      --civilian-color: #34d399;
-      --imposter-bg: #7f1d1d;
-      --imposter-color: #f87171;
-      --mrwhite-bg: #78350f;
-      --mrwhite-color: #fbbf24;
+      --civilian-bg: #052e16;
+      --civilian-color: #6ee7b7;
+      --imposter-bg: #450a0a;
+      --imposter-color: #fca5a5;
+      --mrwhite-bg: #451a03;
+      --mrwhite-color: #fcd34d;
     }
 
     * {
@@ -84,10 +85,18 @@
       line-height: 1;
     }
     .btn:active { transform: scale(0.97); opacity: 0.88; }
-    .btn-primary { background: linear-gradient(135deg, #6d28d9, #9333ea); color: white; }
+    .btn-primary {
+      background: linear-gradient(135deg, #991b1b, #dc2626);
+      color: white;
+      box-shadow: 0 0 24px rgba(220, 38, 38, 0.25);
+    }
     .btn-secondary { background: var(--surface2); color: var(--accent-light); border: 1.5px solid var(--accent); }
-    .btn-danger { background: linear-gradient(135deg, #991b1b, #dc2626); color: white; }
-    .btn-success { background: linear-gradient(135deg, #065f46, #059669); color: white; }
+    .btn-danger {
+      background: linear-gradient(135deg, #450a0a, #7f1d1d);
+      color: white;
+      box-shadow: 0 0 24px rgba(127, 29, 29, 0.35);
+    }
+    .btn-success { background: linear-gradient(135deg, #064e3b, #065f46); color: white; }
     .btn:disabled { opacity: 0.35; pointer-events: none; }
 
     /* ── SHARED ── */
@@ -116,21 +125,35 @@
     /* ── WELCOME ── */
     #s-welcome {
       justify-content: center; gap: 12px; text-align: center;
-      background: radial-gradient(ellipse at 50% 25%, #2d1b69 0%, #0f0c1a 65%);
+      background:
+        radial-gradient(ellipse at 50% 22%, #4c0519 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 95%, #1a0707 0%, transparent 60%),
+        var(--bg);
     }
     .logo-wrap {
       font-size: 82px; line-height: 1; margin-bottom: 4px;
-      animation: float 3.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.55));
+      animation: flicker 3.5s ease-in-out infinite;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-14px); }
+    @keyframes flicker {
+      0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.55)); }
+      45% { transform: translateY(-12px); filter: drop-shadow(0 0 26px rgba(252, 211, 77, 0.55)); }
+      55% { transform: translateY(-12px); filter: drop-shadow(0 0 22px rgba(220, 38, 38, 0.7)); }
     }
     #s-welcome h1 {
       font-size: 44px; font-weight: 900;
-      background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+      background: linear-gradient(135deg, #fecaca 0%, #f87171 45%, #fcd34d 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text; margin-bottom: 2px;
+      letter-spacing: 0.02em;
+    }
+    .version-badge {
+      position: fixed; left: 0; right: 0;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      text-align: center;
+      font-size: 11px; letter-spacing: 0.18em;
+      color: var(--text-muted); opacity: 0.55;
+      pointer-events: none;
     }
     .tagline { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; }
     .how-to-card {
@@ -183,6 +206,42 @@
     }
     .toggle input:checked + .toggle-slider { background: var(--accent); }
     .toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+    /* ── CATEGORIES ── */
+    .cat-actions {
+      display: flex; gap: 8px; margin-bottom: 12px;
+    }
+    .cat-action-btn {
+      flex: 1; background: var(--surface2); border: none;
+      color: var(--accent-light); padding: 8px 10px;
+      border-radius: 10px; font-family: inherit;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background 0.12s;
+    }
+    .cat-action-btn:active { background: var(--accent); color: white; }
+    .cat-grid {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .cat-chip {
+      background: var(--surface2); border: 1.5px solid transparent;
+      border-radius: 12px; padding: 9px 13px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .cat-chip.selected {
+      background: rgba(124, 58, 237, 0.18);
+      border-color: var(--accent); color: var(--accent-light);
+    }
+    .cat-chip-count {
+      font-size: 11px; opacity: 0.65; font-weight: 500;
+    }
+    .cat-empty-warn {
+      color: #f87171; font-size: 12px; margin-top: 10px;
+      text-align: center; display: none;
+    }
+    .cat-empty-warn.show { display: block; }
 
     /* ── NAMES ── */
     #s-names { gap: 10px; }
@@ -290,6 +349,14 @@
       transition: color 0.3s;
     }
     .timer-text.urgent { color: #f87171; }
+    .timer-wrap { cursor: pointer; }
+    .timer-wrap.paused .timer-progress { stroke: var(--ember); opacity: 0.7; }
+    .timer-wrap.paused .timer-text { color: var(--ember); }
+    .timer-hint {
+      font-size: 12px; color: var(--text-muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-top: -8px;
+    }
     .rules-card { background: var(--surface); border-radius: var(--radius); padding: 18px 20px; width: 100%; max-width: 400px; }
     .rules-card h3 { color: var(--accent-light); margin-bottom: 10px; font-size: 15px; }
     .rules-card ul { padding-left: 18px; color: var(--text-muted); font-size: 13px; line-height: 2; }
@@ -349,7 +416,9 @@
     #s-result {
       justify-content: flex-start; align-items: center;
       text-align: center; gap: 16px;
-      background: radial-gradient(ellipse at 50% 20%, #1e1a2e 0%, #0f0c1a 70%);
+      background:
+        radial-gradient(ellipse at 50% 18%, #3f0a18 0%, transparent 55%),
+        var(--bg);
     }
     .result-emoji {
       font-size: 80px; margin-top: 16px;
@@ -428,6 +497,7 @@
   <div class="w-full">
     <button class="btn btn-primary" onclick="goTo('s-setup')">കളി തുടങ്ങൂ →</button>
   </div>
+  <div class="version-badge" id="app-version">v0.0.1</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -467,6 +537,16 @@
     <div class="section-label">ഗെയിം ഓപ്ഷനുകൾ</div>
     <div class="toggle-row">
       <div class="toggle-info">
+        <h4>ഇംപോസ്റ്ററിന് വാക്ക്</h4>
+        <p>ഇംപോസ്റ്ററിന് വ്യത്യസ്ത വാക്ക് നൽകുക</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="tog-imp-word" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
         <h4>Mr. White</h4>
         <p>ഒരാൾക്ക് വാക്ക് ഇല്ലാതിരിക്കും, ഊഹിക്കണം</p>
       </div>
@@ -485,6 +565,16 @@
         <span class="toggle-slider"></span>
       </label>
     </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-label">വാക്കുകളുടെ വിഭാഗം</div>
+    <div class="cat-actions">
+      <button class="cat-action-btn" onclick="selectAllCats()">എല്ലാം തിരഞ്ഞെടുക്കൂ</button>
+      <button class="cat-action-btn" onclick="clearAllCats()">ഒന്നുമില്ല</button>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+    <div class="cat-empty-warn" id="cat-warn">കുറഞ്ഞത് ഒരു വിഭാഗം തിരഞ്ഞെടുക്കണം</div>
   </div>
 
   <div class="w-full">
@@ -553,12 +643,12 @@
     <span class="screen-title">ചർച്ചാ സമയം 💬</span>
   </div>
 
-  <div class="timer-wrap">
+  <div class="timer-wrap" id="t-wrap" onclick="toggleTimerPause()">
     <svg class="timer-svg" viewBox="0 0 190 190">
       <defs>
         <linearGradient id="tGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7c3aed"/>
-          <stop offset="100%" stop-color="#a855f7"/>
+          <stop offset="0%" stop-color="#dc2626"/>
+          <stop offset="100%" stop-color="#fcd34d"/>
         </linearGradient>
       </defs>
       <circle class="timer-bg" cx="95" cy="95" r="85"/>
@@ -566,6 +656,7 @@
     </svg>
     <div class="timer-text" id="t-text">3:00</div>
   </div>
+  <div class="timer-hint" id="t-hint">ടാപ്പ് ചെയ്ത് നിർത്തുക</div>
 
   <div class="rules-card">
     <h3>📋 ഓർക്കുക</h3>
@@ -632,7 +723,7 @@
       <span class="word-label">🟢 സിവിലിയൻ വാക്ക്</span>
       <span class="word-val civilian-word" id="r-civ-word">—</span>
     </div>
-    <div class="word-row">
+    <div class="word-row" id="r-imp-row">
       <span class="word-label">🔴 ഇംപോസ്റ്റർ വാക്ക്</span>
       <span class="word-val imposter-word" id="r-imp-word">—</span>
     </div>
@@ -654,54 +745,104 @@
      JAVASCRIPT
 ══════════════════════════════════════ -->
 <script>
-// ── WORD PAIRS (all Malayalam) ──
-const PAIRS = [
-  ['ചായ', 'കാപ്പി'],
-  ['ആന', 'കുതിര'],
-  ['ചന്ദ്രൻ', 'സൂര്യൻ'],
-  ['മഴ', 'മഞ്ഞ്'],
-  ['പൂച്ച', 'നായ'],
-  ['ആപ്പിൾ', 'ഓറഞ്ച്'],
-  ['ട്രെയിൻ', 'ബസ്'],
-  ['സ്കൂൾ', 'കോളേജ്'],
-  ['കടൽ', 'നദി'],
-  ['ഡോക്ടർ', 'നഴ്സ്'],
-  ['താമര', 'റോസ്'],
-  ['ചോറ്', 'ദോശ'],
-  ['ടെലിവിഷൻ', 'മൊബൈൽ'],
-  ['സ്വർണ്ണം', 'വെള്ളി'],
-  ['ക്രിക്കറ്റ്', 'ഫുട്ബോൾ'],
-  ['ഓണം', 'വിഷു'],
-  ['പുസ്തകം', 'മാഗസിൻ'],
-  ['ചിക്കൻ', 'മീൻ'],
-  ['ഫോൺ', 'ടാബ്ലറ്റ്'],
-  ['ക്ഷേത്രം', 'പള്ളി'],
-  ['ബോട്ട്', 'കപ്പൽ'],
-  ['ഗ്രാമം', 'നഗരം'],
-  ['മാങ്ങ', 'തണ്ണിമത്തൻ'],
-  ['ഗിറ്റാർ', 'വീണ'],
-  ['സിനിമ', 'നാടകം'],
-  ['ബ്രഡ്', 'ചപ്പാത്തി'],
-  ['അമ്മ', 'ചേച്ചി'],
-  ['വീട്', 'ഫ്ലാറ്റ്'],
-  ['കോഴി', 'താറാവ്'],
-  ['പുഴ', 'കുളം'],
-  ['ആകാശം', 'കടൽ'],
-  ['ലാപ്ടോപ്', 'കമ്പ്യൂട്ടർ'],
-  ['കേരളം', 'തമിഴ്നാട്'],
-  ['ഇഡ്ഡലി', 'ഉപ്പുമാവ്'],
-  ['കവിത', 'കഥ'],
-  ['ഷർട്ട്', 'കുർത്ത'],
-  ['കണ്ണട', 'ലെൻസ്'],
-  ['ഗോതമ്പ്', 'അരി'],
-  ['തലയണ', 'കമ്പളം'],
-  ['പൂന്തോട്ടം', 'കാട്'],
-  ['ബസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
-  ['ആലപ്പുഴ', 'കോഴിക്കോട്'],
-  ['ഇലക്ട്രിക്', 'സോളാർ'],
-  ['ബേക്കറി', 'ഹോട്ടൽ'],
-  ['ബൈക്ക്', 'സ്കൂട്ടർ'],
-];
+// ── APP VERSION ──
+const APP_VERSION = 'v0.0.1';
+
+// ── WORD PAIRS BY CATEGORY (all Malayalam) ──
+const CATEGORIES = {
+  food: {
+    name: 'ഭക്ഷണം', emoji: '🍽️',
+    pairs: [
+      ['ചായ', 'കാപ്പി'],
+      ['ആപ്പിൾ', 'ഓറഞ്ച്'],
+      ['ചോറ്', 'ദോശ'],
+      ['ചിക്കൻ', 'മീൻ'],
+      ['മാങ്ങ', 'തണ്ണിമത്തൻ'],
+      ['ബ്രഡ്', 'ചപ്പാത്തി'],
+      ['ഇഡ്ഡലി', 'ഉപ്പുമാവ്'],
+      ['ഗോതമ്പ്', 'അരി'],
+    ],
+  },
+  animals: {
+    name: 'മൃഗങ്ങൾ', emoji: '🐾',
+    pairs: [
+      ['ആന', 'കുതിര'],
+      ['പൂച്ച', 'നായ'],
+      ['കോഴി', 'താറാവ്'],
+    ],
+  },
+  nature: {
+    name: 'പ്രകൃതി', emoji: '🌿',
+    pairs: [
+      ['ചന്ദ്രൻ', 'സൂര്യൻ'],
+      ['മഴ', 'മഞ്ഞ്'],
+      ['കടൽ', 'നദി'],
+      ['പുഴ', 'കുളം'],
+      ['ആകാശം', 'കടൽ'],
+      ['താമര', 'റോസ്'],
+      ['പൂന്തോട്ടം', 'കാട്'],
+    ],
+  },
+  transport: {
+    name: 'വാഹനം', emoji: '🚗',
+    pairs: [
+      ['ട്രെയിൻ', 'ബസ്'],
+      ['ബോട്ട്', 'കപ്പൽ'],
+      ['ബൈക്ക്', 'സ്കൂട്ടർ'],
+    ],
+  },
+  places: {
+    name: 'സ്ഥലങ്ങൾ', emoji: '🏛️',
+    pairs: [
+      ['സ്കൂൾ', 'കോളേജ്'],
+      ['ഗ്രാമം', 'നഗരം'],
+      ['കേരളം', 'തമിഴ്നാട്'],
+      ['ആലപ്പുഴ', 'കോഴിക്കോട്'],
+      ['ക്ഷേത്രം', 'പള്ളി'],
+      ['ബേക്കറി', 'ഹോട്ടൽ'],
+      ['വീട്', 'ഫ്ലാറ്റ്'],
+    ],
+  },
+  sports: {
+    name: 'കായികം', emoji: '⚽',
+    pairs: [
+      ['ക്രിക്കറ്റ്', 'ഫുട്ബോൾ'],
+      ['ബസ്കറ്റ്ബോൾ', 'ഹോക്കി'],
+    ],
+  },
+  tech: {
+    name: 'സാങ്കേതികം', emoji: '📱',
+    pairs: [
+      ['ടെലിവിഷൻ', 'മൊബൈൽ'],
+      ['ഫോൺ', 'ടാബ്ലറ്റ്'],
+      ['ലാപ്ടോപ്', 'കമ്പ്യൂട്ടർ'],
+      ['ഇലക്ട്രിക്', 'സോളാർ'],
+    ],
+  },
+  entertainment: {
+    name: 'വിനോദം', emoji: '🎭',
+    pairs: [
+      ['സിനിമ', 'നാടകം'],
+      ['പുസ്തകം', 'മാഗസിൻ'],
+      ['കവിത', 'കഥ'],
+      ['ഗിറ്റാർ', 'വീണ'],
+    ],
+  },
+  misc: {
+    name: 'മറ്റുള്ളവ', emoji: '✨',
+    pairs: [
+      ['ഡോക്ടർ', 'നഴ്സ്'],
+      ['അമ്മ', 'ചേച്ചി'],
+      ['സ്വർണ്ണം', 'വെള്ളി'],
+      ['ഓണം', 'വിഷു'],
+      ['ഷർട്ട്', 'കുർത്ത'],
+      ['കണ്ണട', 'ലെൻസ്'],
+      ['തലയണ', 'കമ്പളം'],
+    ],
+  },
+};
+
+const CAT_KEYS = Object.keys(CATEGORIES);
 
 const EMOJIS = ['😀','😎','🥳','🤩','😍','🦸','🧙','🎭','👻','🤖'];
 
@@ -711,6 +852,8 @@ const G = {
   timer: 180,
   useMrWhite: false,
   useTwoImposters: false,
+  imposterGetsWord: true,
+  selectedCats: new Set(CAT_KEYS),
   names: [],
   players: [],        // [{name, role, word}]
   civWord: '',
@@ -719,12 +862,102 @@ const G = {
   cardFlipped: false,
   timerInterval: null,
   timerLeft: 0,
+  timerPaused: false,
   voteRound: 0,
   currentVote: -1,
   votes: [],          // one per player
   guessWord: null,
   eliminatedIdx: -1,
 };
+
+// ── CATEGORY HELPERS ──
+function getActivePairs() {
+  const pairs = [];
+  G.selectedCats.forEach(k => {
+    if (CATEGORIES[k]) pairs.push(...CATEGORIES[k].pairs);
+  });
+  return pairs;
+}
+
+function renderCatGrid() {
+  const grid = document.getElementById('cat-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CAT_KEYS.forEach(k => {
+    const cat = CATEGORIES[k];
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'cat-chip' + (G.selectedCats.has(k) ? ' selected' : '');
+    chip.innerHTML = `${cat.emoji} ${cat.name} <span class="cat-chip-count">(${cat.pairs.length})</span>`;
+    chip.onclick = () => toggleCat(k);
+    grid.appendChild(chip);
+  });
+  updateCatWarn();
+}
+
+function toggleCat(k) {
+  if (G.selectedCats.has(k)) G.selectedCats.delete(k);
+  else G.selectedCats.add(k);
+  renderCatGrid();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function selectAllCats() {
+  CAT_KEYS.forEach(k => G.selectedCats.add(k));
+  renderCatGrid();
+}
+
+function clearAllCats() {
+  G.selectedCats.clear();
+  renderCatGrid();
+}
+
+function updateCatWarn() {
+  const warn = document.getElementById('cat-warn');
+  if (warn) warn.classList.toggle('show', G.selectedCats.size === 0);
+}
+
+// ── SETTINGS PERSISTENCE ──
+const SETTINGS_KEY = 'imposter-settings-v1';
+
+function saveSettings() {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      count: G.count,
+      timer: G.timer,
+      useMrWhite: G.useMrWhite,
+      useTwoImposters: G.useTwoImposters,
+      imposterGetsWord: G.imposterGetsWord,
+      cats: [...G.selectedCats],
+    }));
+  } catch (e) {}
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (typeof s.count === 'number') G.count = Math.max(3, Math.min(10, s.count));
+    if (typeof s.timer === 'number') G.timer = Math.max(60, Math.min(600, s.timer));
+    if (typeof s.useMrWhite === 'boolean') G.useMrWhite = s.useMrWhite;
+    if (typeof s.useTwoImposters === 'boolean') G.useTwoImposters = s.useTwoImposters;
+    if (typeof s.imposterGetsWord === 'boolean') G.imposterGetsWord = s.imposterGetsWord;
+    if (Array.isArray(s.cats)) {
+      const valid = s.cats.filter(k => CAT_KEYS.includes(k));
+      if (valid.length) G.selectedCats = new Set(valid);
+    }
+  } catch (e) {}
+}
+
+function applyLoadedSettingsToUI() {
+  document.getElementById('count-display').textContent = G.count;
+  const m = Math.floor(G.timer / 60), s = G.timer % 60;
+  document.getElementById('timer-setup').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('tog-white').checked = G.useMrWhite;
+  document.getElementById('tog-two').checked = G.useTwoImposters;
+  document.getElementById('tog-imp-word').checked = G.imposterGetsWord;
+}
 
 // ── NAVIGATION ──
 function goTo(id) {
@@ -746,8 +979,14 @@ function changeTimer(d) {
 }
 
 function goToNames() {
+  if (G.selectedCats.size === 0) {
+    updateCatWarn();
+    return;
+  }
   G.useMrWhite = document.getElementById('tog-white').checked;
   G.useTwoImposters = document.getElementById('tog-two').checked;
+  G.imposterGetsWord = document.getElementById('tog-imp-word').checked;
+  saveSettings();
 
   const list = document.getElementById('names-list');
   list.innerHTML = '';
@@ -780,9 +1019,10 @@ function startGame() {
 }
 
 function assignRoles() {
-  const pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+  const activePairs = getActivePairs();
+  const pair = activePairs[Math.floor(Math.random() * activePairs.length)];
   G.civWord = pair[0];
-  G.impWord = pair[1];
+  G.impWord = G.imposterGetsWord ? pair[1] : '';
 
   G.players = G.names.map(name => ({ name, role: 'civilian', word: G.civWord }));
 
@@ -846,11 +1086,17 @@ function showReveal() {
     `;
   } else if (p.role === 'imposter') {
     back.className = 'card-face card-back imposter';
+    const wordHtml = p.word
+      ? `<div class="role-word">${p.word}</div>`
+      : `<div class="role-word">???</div>`;
+    const hintHtml = p.word
+      ? `നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>ചർച്ചകൾ ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.`
+      : `നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>നിങ്ങൾക്ക് വാക്ക് ഇല്ല – ചർച്ച ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.`;
     back.innerHTML = `
       <div class="role-badge">🔴 ഇംപോസ്റ്റർ</div>
       <div class="role-icon">😈</div>
-      <div class="role-word">${p.word}</div>
-      <div class="role-hint">നിങ്ങൾ ഇംപോസ്റ്ററാണ്!<br>ചർച്ചകൾ ശ്രദ്ധിച്ച് ഒളിഞ്ഞിരിക്കൂ.</div>
+      ${wordHtml}
+      <div class="role-hint">${hintHtml}</div>
     `;
   } else {
     back.className = 'card-face card-back mrwhite';
@@ -884,16 +1130,34 @@ function revealDone() {
 // ── PLAY PHASE ──
 function startPlay() {
   G.timerLeft = G.timer;
+  G.timerPaused = false;
+  applyPauseUI();
   updateTimer();
 
   if (G.timerInterval) clearInterval(G.timerInterval);
   G.timerInterval = setInterval(() => {
+    if (G.timerPaused || G.timerLeft <= 0) return;
     G.timerLeft--;
     updateTimer();
     if (G.timerLeft <= 0) clearInterval(G.timerInterval);
   }, 1000);
 
   goTo('s-play');
+}
+
+function toggleTimerPause() {
+  if (G.timerLeft <= 0) return;
+  G.timerPaused = !G.timerPaused;
+  applyPauseUI();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function applyPauseUI() {
+  const wrap = document.getElementById('t-wrap');
+  const hint = document.getElementById('t-hint');
+  if (!wrap || !hint) return;
+  wrap.classList.toggle('paused', G.timerPaused);
+  hint.textContent = G.timerPaused ? '▶ തുടരാൻ ടാപ്പ് ചെയ്യൂ' : '⏸ നിർത്താൻ ടാപ്പ് ചെയ്യൂ';
 }
 
 function updateTimer() {
@@ -965,11 +1229,17 @@ function tallyVotes() {
   const tally = {};
   G.votes.forEach(v => tally[v] = (tally[v] || 0) + 1);
 
-  let maxV = 0, elim = -1;
-  Object.entries(tally).forEach(([idx, cnt]) => {
-    if (cnt > maxV) { maxV = cnt; elim = +idx; }
-  });
+  let maxV = 0;
+  Object.values(tally).forEach(cnt => { if (cnt > maxV) maxV = cnt; });
+  const tied = Object.entries(tally).filter(([, c]) => c === maxV).map(([i]) => +i);
 
+  if (tied.length > 1) {
+    G.eliminatedIdx = -1;
+    showResult('imp-wins-tie');
+    return;
+  }
+
+  const elim = tied[0];
   G.eliminatedIdx = elim;
   const ep = G.players[elim];
 
@@ -988,7 +1258,7 @@ function offerGuess(idx) {
   document.getElementById('guess-btn').disabled = true;
 
   const correct = G.civWord;
-  const pool = PAIRS.flat().filter(w => w !== correct && w !== G.impWord);
+  const pool = getActivePairs().flat().filter(w => w !== correct && w !== G.impWord);
   shuffle(pool);
   const options = shuffle([correct, ...pool.slice(0, 3)]);
 
@@ -1032,6 +1302,11 @@ function showResult(outcome) {
     rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
     rTitle.style.color = '#f87171';
     rSub.textContent = 'ഇംപോസ്റ്ററെ തിരിച്ചറിഞ്ഞില്ല!';
+  } else if (outcome === 'imp-wins-tie') {
+    rEmoji.textContent = '⚖️';
+    rTitle.textContent = 'സമനില!';
+    rTitle.style.color = '#fcd34d';
+    rSub.textContent = 'വോട്ടുകൾ തുല്യം – ഇംപോസ്റ്റർ രക്ഷപ്പെട്ടു.';
   } else {
     rEmoji.textContent = '🎯';
     rTitle.textContent = 'ഇംപോസ്റ്റർ ജയിച്ചു!';
@@ -1040,7 +1315,8 @@ function showResult(outcome) {
   }
 
   document.getElementById('r-civ-word').textContent = G.civWord;
-  document.getElementById('r-imp-word').textContent = G.impWord;
+  document.getElementById('r-imp-word').textContent = G.impWord || '—';
+  document.getElementById('r-imp-row').style.display = G.impWord ? '' : 'none';
 
   const rows = document.getElementById('r-players');
   rows.innerHTML = '';
@@ -1081,7 +1357,7 @@ function spawnConfetti() {
     y: -20,
     w: Math.random() * 10 + 5,
     h: Math.random() * 6 + 3,
-    color: ['#7c3aed','#a855f7','#34d399','#fbbf24','#f87171','#60a5fa','#f0abfc'][Math.floor(Math.random()*7)],
+    color: ['#dc2626','#fca5a5','#fcd34d','#6ee7b7','#f59e0b','#ef4444','#fde68a'][Math.floor(Math.random()*7)],
     vx: (Math.random() - 0.5) * 3,
     vy: Math.random() * 3 + 2,
     va: (Math.random() - 0.5) * 8,
@@ -1110,6 +1386,11 @@ function spawnConfetti() {
 }
 
 // Init
+const verEl = document.getElementById('app-version');
+if (verEl) verEl.textContent = APP_VERSION;
+loadSettings();
+applyLoadedSettingsToUI();
+renderCatGrid();
 goTo('s-welcome');
 </script>
 </body>
